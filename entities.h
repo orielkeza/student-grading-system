@@ -1,5 +1,6 @@
-    #include <vector>
+#include <vector>
 #include <string>
+#include <fstream>
 
 class Marks {
     public:
@@ -33,6 +34,7 @@ class Person {
         std::string name;
         std::string course;
         std::vector<Course*> courseList;
+        std::fstream courseFile;        
 };
 
 class Teacher : public Person {
@@ -40,8 +42,10 @@ class Teacher : public Person {
         Teacher (std:: string name);
         virtual ~Teacher ();
     private:
+        void allStudents ();
         void changeMark (std::string courseName, int index, int newNum);
         std::vector<Student*> studentList;
+        std::fstream studentFile;
 };
 
 class Student : public Person {
@@ -49,6 +53,8 @@ class Student : public Person {
         Student (std::string name);
         virtual ~Student ();
     private:
+        void allTeachers();
         std::vector<Teacher*> teacherList;
+        std::fstream marksFile;
 
 };
