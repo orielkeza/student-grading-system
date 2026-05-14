@@ -1,7 +1,54 @@
+#ifndef ENTITIES_H
+#define ENTITIES_H
 #include <vector>
 #include <string>
 #include <fstream>
-
+#include <map>
+ 
+class StudentRegHashTable {
+    public:
+        StudentRegHashTable();
+        virtual ~StudentRegHashTable();
+        void insert(std::string name, std::string teacher, std::string course, double marks);
+        void remove(std::string studentName);
+        bool lookup(std::string studentName) const;
+        void printAll();
+        void printJunctionAll();
+        void printOne(std::string studentName);
+        void updateCourse(std::string oldCourseN, std::string newCourseN);
+        void updateStudent(std::string oldStudentN, std::string newStudentN);
+        void printStudentList(std::string course);
+        void printCourseList(std::string studentName);
+        void loadDB(std::fstream& fileStd, std::fstream& fileSC);
+        static const int DefaultBuckets = 26;
+    protected:
+        struct Student {
+            std::string name;//student name will be the key for now until i add id generation
+            Student* next;
+            std::string teacher;
+            std::string course;
+            double marks;
+        };
+        struct SC {
+            std::string name;//student name will be the key for now until i add id generation
+            SC* next;
+            std::string course;
+        };
+        struct Course {
+            std::string courseName;
+            Course* next;
+        };
+    private:
+        std::vector<Student*> table;
+        std::map<std::string, SC*> studentCourseTable;
+        std::fstream db;
+        std::fstream junctiondb;
+        std::fstream dbCourseList;
+        std::fstream dbStudentList;
+        int hash(std::string key) const;//this is what i need to define to get alphabetical order
+        std::string hashStudentCourse(std::string studentName, std::string courseName) const;//to store the student and course together
+};
+/*
 class Marks {
     public:
         Marks (std::string name, int mark);
@@ -15,11 +62,11 @@ class Marks {
 class Course {
     public:
         Course (std::string name);
+        std::vector<Marks*> marksList;
+
     protected:
         virtual void allMarks ();
-    private:
         std::string name;
-        std::vector<Marks*> marksList;
 };
 
 class Person {
@@ -34,7 +81,7 @@ class Person {
         std::string name;
         std::string course;
         std::vector<Course*> courseList;
-        std::fstream courseFile;        
+        std::fstream courseFile;
 };
 
 class Teacher : public Person {
@@ -43,7 +90,8 @@ class Teacher : public Person {
         virtual ~Teacher ();
     private:
         void allStudents ();
-        void changeMark (std::string courseName, int index, int newNum);
+        void addMark (std::string courseName, string markName, int mark);
+        void changeMark (std::string courseName, int index, int newMark);
         std::vector<Student*> studentList;
         std::fstream studentFile;
 };
@@ -58,3 +106,7 @@ class Student : public Person {
         std::fstream marksFile;
 
 };
+*/
+
+
+#endif
