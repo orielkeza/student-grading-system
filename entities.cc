@@ -15,23 +15,50 @@
 using namespace std;
 
 StudentRegHashTable::StudentRegHashTable()
-    : table{DefaultBuckets}, studentCourseTable{}, teacherCourseTable{}, studentlist{DefaultBuckets}, courselist{}, markslist{}, teacherlist{DefaultBuckets} {
+    : studentCourseTable{}, teacherCourseTable{}, studentlist{DefaultBuckets}, courselist{DefaultBuckets}, markslist{}, teacherlist{DefaultBuckets} {
         loadDB(db, junctiondb);
     }
 
 StudentRegHashTable::~StudentRegHashTable() {
     printAll();
     printJunctionAll();
-    
-    for(int i=0; i<table.size(); i++) {
-        Student* p = table.at(i);
+
+    for(int i=0; i<studentlist.size(); i++) {
+        Student* p = studentlist.at(i);
         while (nullptr!=p) {
             Student* temp =p;
             p = p->next;
             delete temp;
         }
     }
+
+    for(int i=0; i<teacherlist.size(); i++) {
+        Teacher* p = teacherlist.at(i);
+        while (nullptr!=p) {
+            Teacher* temp =p;
+            p = p->next;
+            delete temp;
+        }
+    }
+
+    for(int i=0; i<courselist.size(); i++) {
+        Course* p = courselist.at(i);
+        while (nullptr!=p) {
+            Course* temp =p;
+            p = p->next;
+            delete temp;
+        }
+    }
+
     for(auto & [key, p] : studentCourseTable) {
+        delete p;
+    }
+
+    for(auto & [key, p] : teacherCourseTable) {
+        delete p;
+    }
+
+    for(auto & [key, p] : markslist) {
         delete p;
     }
 }
@@ -94,11 +121,11 @@ void StudentRegHashTable::addTeacher(string teacher) {
 }
 
 void StudentRegHashTable::addCourse(string course) {
-    const string slot = hashCourse(course);
+    const int slot = hashCourse(course);
     Course* newCourse = new Course;
     newCourse->courseName = course;
-    newCourse->next =courselist[slot];
-    courselist[slot]=newCourse;
+    newCourse->next =courselist.at(slot);
+    courselist.at(slot)=newCourse;
 }
 
 bool StudentRegHashTable::student_check(string student) const { //to make sure student and course exist
@@ -129,10 +156,13 @@ bool StudentRegHashTable::teacher_check(string teacher) const { //to make sure s
 
 bool StudentRegHashTable::course_check(string course) const { //to make sure student and course exist
 //look through courselist
-    for(auto & [key, p] : courselist) {
-        if(p->courseName==course) {
+    const int slot = hash(course);
+    Course* curCourse = courselist.at(slot);
+    while(nullptr!=curCourse) {
+        if(curCourse->courseName == course) {
             return true;
         }
+        curCourse = curCourse->next;
     }
     return false;
 }
@@ -167,7 +197,7 @@ void StudentRegHashTable::addStudent_Course(string student, string course){
 void StudentRegHashTable::addTeacher_Course(string teacher, string course){
     if(!(teacher_course_check(teacher,course))) return;
 
-    const string tcSlot = hashStudentCourse(teacher, course);
+    const string tcSlot = hashTC(teacher, course);
     TC* tcNewTeacher = new TC;
     tcNewTeacher->name = teacher;
     tcNewTeacher->course = course;
@@ -178,7 +208,7 @@ void StudentRegHashTable::addTeacher_Course(string teacher, string course){
 void StudentRegHashTable::addMarks(double marks, string student, string course) {
     if(!(student_course_check(student,course))) return;
 
-    const string MSlot = hashMarks(student, course, marks);
+    const string MSlot = hashStudentCourse(student, course);
     Marks* newMarks = new Marks;
     newMarks->marks = marks;
     newMarks->studentName = student;
@@ -186,7 +216,7 @@ void StudentRegHashTable::addMarks(double marks, string student, string course) 
     newMarks->next = markslist[MSlot]; //not at. bc it wasn't alr initiallized
     markslist[MSlot] = newMarks;  
 }
-/*
+
 void StudentRegHashTable::insert(string key, string teacher, string course, double marks) {
     const int slot = hash(key);
     Student* newStudent = new Student;
@@ -203,9 +233,9 @@ void StudentRegHashTable::insert(string key, string teacher, string course, doub
     scNewStudent->course = course;
     scNewStudent->next = studentCourseTable[scSlot]; //not at. bc it wasn't alr initiallized
     studentCourseTable[scSlot] = scNewStudent;
-} */
+} 
 
-bool StudentRegHashTable::lookup(string key) const {
+/*bool StudentRegHashTable::lookup(string key) const {
     const int slot = hash(key);
     Student* curStudent = table.at(slot);
     while(nullptr!=curStudent) {
@@ -214,48 +244,163 @@ bool StudentRegHashTable::lookup(string key) const {
         }
         curStudent = curStudent->next;
     }
-    return false;
-}
+    return false; 
+} */
 
 void StudentRegHashTable::updateCourse(string oldCourseN, string newCourseN) {
-    for(auto & [key, p] : studentCourseTable) {
-        if(p->course==oldCourseN) {
-            p->course=newCourseN;
+    if(course_check(oldCourseN)){
+        for(auto & [key, p] : studentCourseTable) {
+            if(p->course==oldCourseN) {
+                p->course=newCourseN;
+            }
         }
-    }
 
-    for(auto & [key, p] : teacherCourseTable) {
-        if(p->course==oldCourseN) {
-            p->course=newCourseN;
-        }
-    }    
+        for(auto & [key, p] : teacherCourseTable) {
+            if(p->course==oldCourseN) {
+                p->course=newCourseN;
+            }
+        }   
 
-    if(course_check){
-        for(auto & [key, p] : courselist) {
-        if(p->courseName==oldCourseN) {
-            p->courseName=newCourseN;
+        const int slot = hash(oldCourseN);
+        Course* curCourse = courselist.at(slot);
+        while(nullptr!=curCourse) {
+            if(curCourse->courseName == oldCourseN) {
+               curCourse->courseName=newCourseN;
+            }
+            curCourse = curCourse->next;
         }
-    }
-    }
+        for(auto & [key, p] : markslist) {
+            if(p->courseName==oldCourseN) {
+                p->courseName=newCourseN;
+            }
+        }  
+    }   
 }
 
 void StudentRegHashTable::updateStudent(string oldStudentN, string newStudentN) {
-    for(auto & [key, p] : studentCourseTable) {
-        if(p->name==oldStudentN) {
-            p->name=newStudentN;
+    if(student_check(oldStudentN)){
+        for(auto & [key, p] : studentCourseTable) {
+            if(p->name==oldStudentN) {
+                p->name=newStudentN;
+            }
         }
-    }
-    const int slot = hash(oldStudentN);
-    Student* curStudent = studentlist.at(slot);
-    while(nullptr!=curStudent) {
-        if(curStudent->name == oldStudentN) {
-            curStudent->name = newStudentN;
+        const int slot = hash(oldStudentN);
+        Student* curStudent = studentlist.at(slot);
+        while(nullptr!=curStudent) {
+            if(curStudent->name == oldStudentN) {
+                curStudent->name = newStudentN;
+            }
+            curStudent = curStudent->next;
         }
-        curStudent = curStudent->next;
+
+        for(auto & [key, p] : markslist) {
+            if(p->studentName==oldStudentN) {
+                p->studentName=newStudentN;
+            }
+        }  
+    } 
+}
+
+void StudentRegHashTable::updateTeacher(string oldTeacherN, string newTeacherN){
+    if(teacher_check(oldTeacherN)){    
+        for(auto & [key, p] : teacherCourseTable) {
+            if(p->name==oldTeacherN) {
+                p->name=newTeacherN;
+            }
+        }
+        const int slot = hash(oldTeacherN);
+        Teacher* curTeacher = teacherlist.at(slot);
+        while(nullptr!=curTeacher) {
+            if(curTeacher->name == oldTeacherN) {
+                curTeacher->name = newTeacherN;
+            }
+            curTeacher = curTeacher->next;
+        }
     }
 }
 
-void StudentRegHashTable::remove(string key) {
+void StudentRegHashTable::updateMarks(string student, string course, double newMarks){
+    if ((student_course_check(student, course))){
+        const string MSlot = hashStudentCourse(student, course);
+        if ((markslist.count(MSlot))>0){
+            markslist[MSlot]->marks = newMarks;
+        }
+    }
+}
+
+void StudentRegHashTable::removeCourse(string course){
+    if(course_check(course)){
+        for(auto & [key, p] : studentCourseTable) {
+            if(p->course==course) {
+                delete p;
+            }
+        }
+
+        for(auto & [key, p] : teacherCourseTable) {
+            if(p->course==course) {
+                delete p;
+            }
+        }   
+
+        const int slot = hash(course);
+        Course* curCourse = courselist.at(slot);
+        while(nullptr!=curCourse) {
+            if(curCourse->courseName == course) {
+               delete curCourse;
+            }
+            curCourse = curCourse->next;
+        }
+        for(auto & [key, p] : markslist) {
+            if(p->courseName==course) {
+                delete p;
+            }
+        }  
+    }
+}
+
+void StudentRegHashTable::removeStudent(string student){
+    if(student_check(student)){
+        for(auto & [key, p] : studentCourseTable) {
+            if(p->name==student) {
+                delete p;
+            }
+        }
+        const int slot = hash(student);
+        Student* curStudent = studentlist.at(slot);
+        while(nullptr!=curStudent) {
+            if(curStudent->name == student) {
+                delete curStudent;
+            }
+            curStudent = curStudent->next;
+        }
+
+        for(auto & [key, p] : markslist) {
+            if(p->studentName==student) {
+                delete p;
+            }
+        }  
+    } 
+}
+
+void StudentRegHashTable::removeTeacher(string teacher){
+    if(teacher_check(teacher)){    
+        for(auto & [key, p] : teacherCourseTable) {
+            if(p->name==teacher) {
+                delete p;
+            }
+        }
+        const int slot = hash(teacher);
+        Teacher* curTeacher = teacherlist.at(slot);
+        while(nullptr!=curTeacher) {
+            if(curTeacher->name == teacher) {
+                delete curTeacher;
+            }
+            curTeacher = curTeacher->next;
+        }
+    }
+}
+
+/* void StudentRegHashTable::remove(string key) {
     if(lookup(key)){
         int i = hash(key);
         Student* p = table[i];
@@ -280,11 +425,11 @@ void StudentRegHashTable::remove(string key) {
             delete p;
         }
         }
-    }
+    } 
 }
 
 void StudentRegHashTable::printAll() {
-    db.open("studentRegDB.txt", ios::out);
+    /*db.open("studentRegDB.txt", ios::out);
     if(!db) {
         cerr<<"Error: Could not open file."<<endl;
         return;
@@ -313,29 +458,165 @@ void StudentRegHashTable::printJunctionAll() {
         junctiondb<<"     Course: "<<p->course<<endl;
     }
     junctiondb.close();
-}
+}*/
 
-void StudentRegHashTable::printStudentList(string courseName) {
-    dbStudentList.open("studentList.txt", ios::out);
-    dbStudentList<<courseName<<"'s Students:"<<endl;
-    for(auto & [key, p] : studentCourseTable) {
-        if(p->name==courseName) {
-            dbStudentList<<p->course<<endl;      
+void StudentRegHashTable::printStudentList() {
+    dbstudentlist.open("studentlist.txt", ios::out);
+    dbstudentlist<<"List of all the students:"<<endl<<endl;
+    for(int i=0; i<studentlist.size(); i++) {
+        Student* p = studentlist.at(i);
+        while (nullptr!=p) {
+            dbstudentlist<<p->name<<endl;
         }
-    }    
+    } 
+    dbstudentlist.close();
 }
 
-void StudentRegHashTable::printCourseList(string studentName) {
-    dbCourseList.open("courseList.txt", ios::out);
-    dbCourseList<<studentName<<"'s Courses:"<<endl;
+void StudentRegHashTable::printCourseList() {
+    dbcourselist.open("courselist.txt", ios::out);
+    dbcourselist<<"List of all the courses:"<<endl<<endl;
+    for(int i=0; i<courselist.size(); i++) {
+        Course* p = courselist.at(i);
+        while (nullptr!=p) {
+            dbcourselist<<p->courseName<<endl;
+        }
+    } 
+    dbcourselist.close();
+}
+
+void StudentRegHashTable::printTeacherList() {
+    dbteacherlist.open("teacherlist.txt", ios::out);
+    dbteacherlist<<"List of all the teachers:"<<endl<<endl;
+    for(int i=0; i<teacherlist.size(); i++) {
+        Teacher* p = teacherlist.at(i);
+        while (nullptr!=p) {
+            dbteacherlist<<p->name<<endl;
+        }
+    } 
+    dbteacherlist.close();
+}
+
+void StudentRegHashTable::studentCourses(string student){
+    dbstudentcourses.open("studentcourses.txt", ios::out);
+    dbstudentcourses<<student<<"'s Courses:"<<endl<<endl;
+
     for(auto & [key, p] : studentCourseTable) {
-        if(p->name==studentName) {
-            dbCourseList<<p->course<<endl;      
+        if(p->name==student) {
+            dbstudentcourses<<p->course<<endl;
         }
     }
+    dbstudentcourses.close();
 }
 
-void StudentRegHashTable::printOne(string key) {
+void StudentRegHashTable::courseStudents(string course){
+    dbcoursestudents.open("coursestudents.txt", ios::out);
+    dbcoursestudents<<course<<"'s Students:"<<endl<<endl;
+
+    for(auto & [key, p] : studentCourseTable) {
+        if(p->course==course) {
+            dbcoursestudents<<p->name<<endl;
+        }
+    }
+    dbcoursestudents.close();
+}
+
+void StudentRegHashTable::teacherCourses(string teacher){
+    dbteachercourses.open("teachercourses.txt", ios::out);
+    dbteachercourses<<teacher<<"'s Courses:"<<endl<<endl;
+
+    for(auto & [key, p] : teacherCourseTable) {
+        if(p->name==teacher) {
+            dbteachercourses<<p->course<<endl;
+        }
+    }
+    dbteachercourses.close();
+}
+
+void StudentRegHashTable::courseTeachers(string course){
+    dbcourseteachers.open("courseteachers.txt", ios::out);
+    dbcourseteachers<<course<<"'s Teachers:"<<endl<<endl;
+
+    for(auto & [key, p] : teacherCourseTable) {
+        if(p->course==course) {
+            dbcourseteachers<<p->name<<endl;
+        }
+    }
+    dbcourseteachers.close();
+}
+
+void StudentRegHashTable::studentRC(string student){
+    dbreportcard.open("reportcard.txt", ios::out);
+    dbreportcard<<student<<"'s Report Card:"<<endl<<endl;
+
+    for(auto & [key, p] : studentCourseTable) {
+        if(p->name==student) {
+            dbreportcard<<"Course: "<<p->course<<endl;
+            if ((student_course_check(student, p->course))){
+                const string MSlot = hashStudentCourse(student, p->course);
+                if ((markslist.count(MSlot))>0){
+                    dbreportcard<<"     Marks: "<<markslist[MSlot]->marks<<endl;
+                    //what will i use instead of student?
+                    //koresha p->course kureba muri tc ukoreshe the teacher ubona mo
+                    string teacherTemp;
+                    for(auto & [key, r] : teacherCourseTable) {
+                        if(r->course==p->course) {
+                            teacherTemp = r->name;
+                        }
+                    }
+                    if ((teacher_course_check(teacherTemp, p->course))){
+                        for(auto & [key, q] : teacherCourseTable) {
+                            if(q->course==p->course) {
+                                dbreportcard<<"     Teacher: "<<q->name<<endl;
+                            }
+                        }          
+                    }
+                }            
+            }
+        }
+    }
+    dbreportcard.close();
+}
+
+void StudentRegHashTable::printAll(){
+    dball.open("All.txt", ios::out);
+
+    //loop through all the student and do each thing for each student
+    for(int i=0; i<studentlist.size(); i++) {
+        Student* s = studentlist.at(i);
+        while (nullptr!=s) {
+            dball<<"Student: "<<s->name;
+            for(auto & [key, p] : studentCourseTable) {
+            if(p->name==s->name) {
+                dball<<"     Course: "<<p->course<<endl;
+                if ((student_course_check(s->name, p->course))){
+                    const string MSlot = hashStudentCourse(s->name, p->course);
+                    if ((markslist.count(MSlot))>0){
+                        dball<<"     Marks: "<<markslist[MSlot]->marks<<endl;
+                        //what will i use instead of student?
+                        //koresha p->course kureba muri tc ukoreshe the teacher ubona mo
+                        string teacherTemp;
+                        for(auto & [key, r] : teacherCourseTable) {
+                            if(r->course==p->course) {
+                                teacherTemp = r->name;
+                            }
+                        }
+                        if ((teacher_course_check(teacherTemp, p->course))){
+                            for(auto & [key, q] : teacherCourseTable) {
+                                if(q->course==p->course) {
+                                    dball<<"     Teacher: "<<q->name<<endl;
+                                }
+                            }          
+                        }
+                    }            
+                }
+            }
+            }
+        }
+    }
+    dball.close();
+}
+
+/*void StudentRegHashTable::printOne(string key) {
     const int slot = hash(key);
     Student* curStudent = table.at(slot);
     while(nullptr!=curStudent) {
@@ -346,8 +627,8 @@ void StudentRegHashTable::printOne(string key) {
             cout<<"     Marks: "<<curStudent->marks<<endl;
         }
         curStudent = curStudent->next;
-    }
-}
+    } 
+}*/
 
 int StudentRegHashTable::hash(string key) const { //needs to be updated but this is my studentlist
     char firstLetter = tolower(key[0]);
@@ -359,10 +640,8 @@ string StudentRegHashTable::hashStudentCourse (string studentName, string course
     return combination;
 }
 
-string StudentRegHashTable::hashMarks (string studentName, string courseName, double marks) const {//marks_student_course
-    string combination = studentName + courseName;
-    string marksString=to_string(marks);
-    return combination+marksString;
+string StudentRegHashTable::hashMarks (string studentName, string courseName) const {//marks_student_course
+    return hashStudentCourse(studentName, courseName);
 }
 
 int StudentRegHashTable::hashCourse (string course) const{ //courselist

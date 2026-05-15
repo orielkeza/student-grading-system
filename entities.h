@@ -12,24 +12,37 @@ class StudentRegHashTable {
         void addStudent(std::string student);
         void addTeacher(std::string teacher);
         void addCourse(std::string course);
-        void StudentRegHashTable::addStudent_Course(std::string student, std::string course);
-        void StudentRegHashTable::addTeacher_Course(std::string teacher, std::string course);
-        void StudentRegHashTable::addMarks(double marks, std::string student, std::string course);
-       // void insert(std::string name, std::string teacher, std::string course, double marks);
-        void remove(std::string studentName);
+        void addStudent_Course(std::string student, std::string course);
+        void addTeacher_Course(std::string teacher, std::string course);
+        void addMarks(double marks, std::string student, std::string course);
+        void insert(std::string name, std::string teacher, std::string course, double marks);
+        //void remove(std::string studentName);
+        void updateTeacher(std::string oldTeacherN, std::string newTeacherN);
+        void updateMarks(std::string student, std::string course, double newMarks);
+        void removeCourse(std::string course);
+        void removeStudent(std::string student);
+        void removeTeacher(std::string teacher);
         bool lookup(std::string studentName) const;
         bool student_course_check(std::string student, std::string course) const; //to make sure student and course exist
         bool teacher_course_check(std::string teacher, std::string course) const; //to make sure student and course exist
         bool student_check(std::string student) const; //to make sure student and course exist
         bool teacher_check(std::string teacher) const; //to make sure student and course exist
         bool course_check(std::string course) const; //to make sure student and course exist
-        void printAll();
         void printJunctionAll();
         void printOne(std::string studentName);
         void updateCourse(std::string oldCourseN, std::string newCourseN);
         void updateStudent(std::string oldStudentN, std::string newStudentN);
-        void printStudentList(std::string course);
-        void printCourseList(std::string studentName);
+
+        void printStudentList();
+        void printCourseList();
+        void printTeacherList();
+        void printAll();
+        void courseStudents(std::string course);
+        void studentCourses(std::string student);
+        void teacherCourses(std::string teacher);
+        void courseTeachers(std::string course);
+        void studentRC(std::string student);
+
         void loadDB(std::fstream& fileStd, std::fstream& fileSC);
         static const int DefaultBuckets = 26;
     protected:
@@ -69,20 +82,29 @@ class StudentRegHashTable {
             Marks* next;
         };
     private:
-        std::vector<Student*> table;
+        //std::vector<Student*> table;
         std::vector<Student*> studentlist;
         std::vector<Teacher*> teacherlist;
-        std::map<std::string, Course*> courselist;
+        std::vector<Course*> courselist;
         std::map<std::string, Marks*> markslist;
         std::map<std::string, SC*> studentCourseTable;
         std::map<std::string, TC*> teacherCourseTable;
-        std::fstream db;
+        std::fstream dbcoursestudents;
+        std::fstream dbstudentcourses;
+        std::fstream dbteachercourses;
+        std::fstream dbcourseteachers;
+        std::fstream dball;
+        std::fstream dbstudentlist;
+        std::fstream dbcourselist;
+        std::fstream dbteacherlist;
+        std::fstream dbreportcard;
+        /*std::fstream db;
         std::fstream junctiondb;
         std::fstream dbCourseList;
-        std::fstream dbStudentList;
+        std::fstream dbStudentList; */
         int hash(std::string key) const;//this is what i need to define to get alphabetical order
         std::string hashStudentCourse(std::string studentName, std::string courseName) const;//to store the student and course together
-        std::string hashMarks (std::string studentName, std::string courseName, double marks) const; //marks_student_course
+        std::string hashMarks (std::string studentName, std::string courseName) const; //marks_student_course
         int hashCourse (std::string course) const; //courselist
         std::string hashTC (std::string teacher, std::string course) const; //teacher_course
 };
