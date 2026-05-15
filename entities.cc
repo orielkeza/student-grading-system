@@ -104,7 +104,7 @@ void StudentRegHashTable::loadSC(fstream& scfile){
         string student = sc;
         if(sc=="Courses:") {
             dbstudentcourses>>sc;
-            addStudent_Course(student,sc);
+            //addStudent_Course(student,sc);
         }
 
     }
@@ -142,7 +142,7 @@ void StudentRegHashTable::loadCT(fstream& ctfile){
         string course = ct;
         if(ct=="Teachers:") {
             dbcourseteachers>>ct;
-            addTeacher_Course(ct, course);
+            //addTeacher_Course(ct, course);
         }
 
     }
@@ -165,15 +165,18 @@ void StudentRegHashTable::loadA(fstream& afile){ //come back to this
             dball>>a;
             student=a;
             addStudent(student);
+            dball>>a;
             if(a=="Course:") { 
                 dball>>a;
                 course=a;
                 addCourse(course);
                 addStudent_Course(student, course);
+                dball>>a;
                 if(a=="Marks:"){
                     dball>>a;
                     marks=stod(a);
                     addMarks(marks, student, course);
+                    dball>>a;
                     if(a=="Teacher:"){
                         dball>>a;
                         teacher=a;
@@ -196,6 +199,7 @@ void StudentRegHashTable::loadSL(fstream& slfile){
     }
 
     while(dbstudentlist>>sl) {
+        dbstudentlist>>sl;
         if(sl=="List of all the students:") {
             dbstudentlist>>sl;
             addStudent(sl);
@@ -213,6 +217,7 @@ void StudentRegHashTable::loadCL(fstream& clfile){
     }
 
     while(dbcourselist>>cl) {
+        dbcourselist>>cl;
         if(cl=="List of all the courses:") {
             dbcourselist>>cl;
             addCourse(cl);
@@ -230,6 +235,7 @@ void StudentRegHashTable::loadTL(fstream& tlfile){
     }
 
     while(dbteacherlist>>tl) {
+        dbteacherlist>>tl;
         if(tl=="List of all the teachers:") {
             dbteacherlist>>tl;
             addTeacher(tl);
@@ -254,15 +260,18 @@ void StudentRegHashTable::loadRC(fstream& rcfile){ //need to come back and fix t
         dbreportcard>>rc;
         student=rc;
         addStudent(student);
+        dbreportcard>>rc;
         if(rc=="Course:") {
             dbreportcard>>rc;
             course=rc;
             addCourse(course);
             addStudent_Course(student, course);
+            dbreportcard>>rc;
             if(rc=="Marks:"){
                 dbreportcard>>rc;
                 marks=stod(rc);
                 addMarks(marks, student, course);
+                dbreportcard>>rc;
                 if(rc=="Teacher:"){
                     dbreportcard>>rc;
                     teacher=rc;
@@ -504,9 +513,10 @@ void StudentRegHashTable::removeCourse(string course){
         Course* curCourse = courselist.at(slot);
         while(nullptr!=curCourse) {
             if(curCourse->courseName == course) {
-               delete curCourse;
+                Course* temp = curCourse;
+                curCourse=curCourse->next;
+                delete curCourse;
             }
-            curCourse = curCourse->next;
         }
         for(auto & [key, p] : markslist) {
             if(p->courseName==course) {
@@ -527,9 +537,10 @@ void StudentRegHashTable::removeStudent(string student){
         Student* curStudent = studentlist.at(slot);
         while(nullptr!=curStudent) {
             if(curStudent->name == student) {
+                Student* temp = curStudent;
+                curStudent = curStudent->next;
                 delete curStudent;
             }
-            curStudent = curStudent->next;
         }
 
         for(auto & [key, p] : markslist) {
@@ -551,9 +562,10 @@ void StudentRegHashTable::removeTeacher(string teacher){
         Teacher* curTeacher = teacherlist.at(slot);
         while(nullptr!=curTeacher) {
             if(curTeacher->name == teacher) {
+                Teacher* temp = curTeacher;
+                curTeacher=curTeacher->next;
                 delete curTeacher;
             }
-            curTeacher = curTeacher->next;
         }
     }
 }
@@ -565,6 +577,7 @@ void StudentRegHashTable::printStudentList() {
         Student* p = studentlist.at(i);
         while (nullptr!=p) {
             dbstudentlist<<p->name<<endl;
+            p=p->next;
         }
     } 
     dbstudentlist.close();
@@ -577,6 +590,7 @@ void StudentRegHashTable::printCourseList() {
         Course* p = courselist.at(i);
         while (nullptr!=p) {
             dbcourselist<<p->courseName<<endl;
+            p=p->next;
         }
     } 
     dbcourselist.close();
@@ -589,6 +603,7 @@ void StudentRegHashTable::printTeacherList() {
         Teacher* p = teacherlist.at(i);
         while (nullptr!=p) {
             dbteacherlist<<p->name<<endl;
+            p=p->next;
         }
     } 
     dbteacherlist.close();
@@ -683,6 +698,7 @@ void StudentRegHashTable::printAll(){
         Student* s = studentlist.at(i);
         while (nullptr!=s) {
             dball<<"Student: "<<s->name;
+            s=s->next;
             for(auto & [key, p] : studentCourseTable) {
             if(p->name==s->name) {
                 dball<<"     Course: "<<p->course<<endl;
