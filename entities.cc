@@ -16,7 +16,7 @@ using namespace std;
 
 StudentRegHashTable::StudentRegHashTable()
     : studentCourseTable{}, teacherCourseTable{}, studentlist{DefaultBuckets}, courselist{DefaultBuckets}, markslist{}, teacherlist{DefaultBuckets} {
-        loadDB(db, junctiondb);
+        loadDB(dbcoursestudents, dbstudentcourses, dbteachercourses, dbcoursestudents, dball, dbstudentlist, dbcourselist, dbteacherlist, dbreportcard);
     }
 
 StudentRegHashTable::~StudentRegHashTable() {
@@ -62,46 +62,234 @@ StudentRegHashTable::~StudentRegHashTable() {
         delete p;
     }
 }
+
 //the file being ingested must follow the format
-void StudentRegHashTable::loadDB(fstream& fileStd, fstream& fileSC) { //aka db and junctiondb
-    string sStd;
-    string sSC;
-    fileStd.open("studentRegDB.txt", ios::out);
-    fileSC.open("junctionDB.txt", ios::out);
-    if (!fileStd) {
-        cerr<< "Cannot open standard file."<<endl;
-        return;
-    }
-    if (!fileSC) {
-        cerr<<"Cannot open student course junction file."<<endl;
-        return;
-    }
+//load each of the files seperately and then call all the seperate ones when you call loadDB
+
         //create a new student using the student name but stop once you reach "     Course: " (stop everytime you land on five spaces)
         //then write course, teacher, marks
         //remember to add to the second hash table as well
         //this is to just add the stuff to the tables and then proceed to add as normal
         //when i close the application (dtor) rewrite the files with the new info from both
-        string key = sStd;
-        string teacher;
-        string course;
-        double marks=0.0;
-    while(fileStd>>sStd) {
-        if(sStd=="Student:") {
-            fileStd>>key;
-        } else if (sStd=="Teacher:") {
-            fileStd>>teacher;
-        } else if (sStd=="Course:") {
-            fileStd>>course; 
-        } else if (sStd=="Marks:") {
-            string marksString;
-            fileStd>>marksString;
-            marks=stod(marksString);
-            insert(key, teacher, course, marks);
-        }
+
+void StudentRegHashTable::loadCS(fstream& csfile){
+    string cs;
+    dbcoursestudents.open("coursestudents.txt", ios::out);
+    if (!dbcoursestudents) {
+        cerr<< "Cannot open file."<<endl;
+        return;
     }
 
-    fileStd.close();
-    fileSC.close();
+    while(dbcoursestudents>>cs) {
+        dbcoursestudents>>cs;
+        string course = cs;
+        if(cs=="'s Students:") {
+            dbcoursestudents>>cs;
+            addStudent_Course(cs,course);
+        }
+
+    }
+    dbcoursestudents.close();
+}
+void StudentRegHashTable::loadSC(fstream& scfile){
+    string sc;
+    dbstudentcourses.open("studentcourses.txt", ios::out);
+    if (!dbstudentcourses) {
+        cerr<< "Cannot open file."<<endl;
+        return;
+    }
+
+    while(dbstudentcourses>>sc) {
+        dbstudentcourses>>sc;
+        string student = sc;
+        if(sc=="Courses:") {
+            dbstudentcourses>>sc;
+            addStudent_Course(student,sc);
+        }
+
+    }
+    dbstudentcourses.close();
+}
+void StudentRegHashTable::loadTC(fstream& tcfile){
+    string tc;
+    dbteachercourses.open("teachercourses.txt", ios::out);
+    if (!dbteachercourses) {
+        cerr<< "Cannot open file."<<endl;
+        return;
+    }
+
+    while(dbteachercourses>>tc) {
+        dbteachercourses>>tc;
+        string teacher = tc;
+        if(tc=="Courses:") {
+            dbteachercourses>>tc;
+            addTeacher_Course(teacher, tc);
+        }
+
+    }
+    dbteachercourses.close();
+}
+void StudentRegHashTable::loadCT(fstream& ctfile){
+    string ct;
+    dbcourseteachers.open("courseteachers.txt", ios::out);
+    if (!dbcourseteachers) {
+        cerr<< "Cannot open file."<<endl;
+        return;
+    }
+
+    while(dbcourseteachers>>ct) {
+        dbcourseteachers>>ct;
+        string course = ct;
+        if(ct=="Teachers:") {
+            dbcourseteachers>>ct;
+            addTeacher_Course(ct, course);
+        }
+
+    }
+    dbcourseteachers.close();
+}
+void StudentRegHashTable::loadA(fstream& afile){ //come back to this
+    string a;
+    dball.open("all.txt", ios::out);
+    if (!dball) {
+        cerr<< "Cannot open file."<<endl;
+        return;
+    }
+
+    while(dball>>a) {
+        string student;
+        string course;
+        string teacher;
+        double marks= 0.0;
+        if(a=="Student:") {
+            dball>>a;
+            student=a;
+            addStudent(student);
+            if(a=="Course:") { 
+                dball>>a;
+                course=a;
+                addCourse(course);
+                addStudent_Course(student, course);
+                if(a=="Marks:"){
+                    dball>>a;
+                    marks=stod(a);
+                    addMarks(marks, student, course);
+                    if(a=="Teacher:"){
+                        dball>>a;
+                        teacher=a;
+                        addTeacher(teacher);
+                        addTeacher_Course(teacher, course);
+                    }
+                }
+            }
+
+        }
+    dball.close();
+    }
+}
+void StudentRegHashTable::loadSL(fstream& slfile){
+    string sl;
+    dbstudentlist.open("studentlist.txt", ios::out);
+    if (!dbstudentlist) {
+        cerr<< "Cannot open file."<<endl;
+        return;
+    }
+
+    while(dbstudentlist>>sl) {
+        if(sl=="List of all the students:") {
+            dbstudentlist>>sl;
+            addStudent(sl);
+        }
+
+    }
+    dbstudentlist.close();
+}
+void StudentRegHashTable::loadCL(fstream& clfile){
+    string cl;
+    dbcourselist.open("courselist.txt", ios::out);
+    if (!dbcourselist) {
+        cerr<< "Cannot open file."<<endl;
+        return;
+    }
+
+    while(dbcourselist>>cl) {
+        if(cl=="List of all the courses:") {
+            dbcourselist>>cl;
+            addCourse(cl);
+        }
+
+    }
+    dbcourselist.close();
+}
+void StudentRegHashTable::loadTL(fstream& tlfile){
+    string tl;
+    dbteacherlist.open("teacherlist.txt", ios::out);
+    if (!dbteacherlist) {
+        cerr<< "Cannot open file."<<endl;
+        return;
+    }
+
+    while(dbteacherlist>>tl) {
+        if(tl=="List of all the teachers:") {
+            dbteacherlist>>tl;
+            addTeacher(tl);
+        }
+
+    }
+    dbteacherlist.close();
+}
+void StudentRegHashTable::loadRC(fstream& rcfile){ //need to come back and fix this
+    string rc;
+    dbreportcard.open("reportcard.txt", ios::out);
+    if (!dbreportcard) {
+        cerr<< "Cannot open file."<<endl;
+        return;
+    }
+
+    string student;
+    string course;
+    string teacher;
+    double marks = 0.0;
+    while(dbreportcard>>rc) {
+        dbreportcard>>rc;
+        student=rc;
+        addStudent(student);
+        if(rc=="Course:") {
+            dbreportcard>>rc;
+            course=rc;
+            addCourse(course);
+            addStudent_Course(student, course);
+            if(rc=="Marks:"){
+                dbreportcard>>rc;
+                marks=stod(rc);
+                addMarks(marks, student, course);
+                if(rc=="Teacher:"){
+                    dbreportcard>>rc;
+                    teacher=rc;
+                    addTeacher(teacher);
+                    addTeacher_Course(teacher, course);
+                }
+            }
+        }
+
+    }
+    dbreportcard.close();
+}
+
+void StudentRegHashTable::loadDB(fstream& csfile, fstream& scfile, fstream& tcfile, fstream& ctfile,
+            fstream& afile, fstream& slfile, fstream& clfile, fstream& tlfile, fstream& rcfile) { 
+    
+    //loading order matters, you add bfr you link
+                
+     loadSL(slfile);
+     loadCL(clfile);
+     loadTL(tlfile);
+     loadCS(csfile);
+     loadSC(scfile);
+     loadTC(tcfile);
+     loadCT(ctfile);
+     loadRC(rcfile);
+     loadA(afile);
 }
 
 void StudentRegHashTable::addStudent(string student) {
@@ -216,36 +404,6 @@ void StudentRegHashTable::addMarks(double marks, string student, string course) 
     newMarks->next = markslist[MSlot]; //not at. bc it wasn't alr initiallized
     markslist[MSlot] = newMarks;  
 }
-
-void StudentRegHashTable::insert(string key, string teacher, string course, double marks) {
-    const int slot = hash(key);
-    Student* newStudent = new Student;
-    newStudent->name = key;
-    newStudent->teacher = teacher;
-    newStudent->course = course;
-    newStudent->marks = marks;
-    newStudent->next = table.at(slot);
-    table.at(slot) = newStudent;
-
-    const string scSlot = hashStudentCourse(key, course);
-    SC* scNewStudent = new SC;
-    scNewStudent->name = key;
-    scNewStudent->course = course;
-    scNewStudent->next = studentCourseTable[scSlot]; //not at. bc it wasn't alr initiallized
-    studentCourseTable[scSlot] = scNewStudent;
-} 
-
-/*bool StudentRegHashTable::lookup(string key) const {
-    const int slot = hash(key);
-    Student* curStudent = table.at(slot);
-    while(nullptr!=curStudent) {
-        if(curStudent->name == key) {
-            return true;
-        }
-        curStudent = curStudent->next;
-    }
-    return false; 
-} */
 
 void StudentRegHashTable::updateCourse(string oldCourseN, string newCourseN) {
     if(course_check(oldCourseN)){
@@ -400,66 +558,6 @@ void StudentRegHashTable::removeTeacher(string teacher){
     }
 }
 
-/* void StudentRegHashTable::remove(string key) {
-    if(lookup(key)){
-        int i = hash(key);
-        Student* p = table[i];
-        Student* prev = nullptr;
-
-        while(p!=nullptr) {
-            if(p->name==key) {
-                if(prev==0){
-                    table[i]=p->next;
-                } else {
-                    prev->next=p->next;
-                }
-            delete p;
-            return;
-            }
-        prev=p;
-        p=p->next;
-        }
-
-        for(auto & [key, p] : studentCourseTable) {
-        if(p->name==key) {
-            delete p;
-        }
-        }
-    } 
-}
-
-void StudentRegHashTable::printAll() {
-    /*db.open("studentRegDB.txt", ios::out);
-    if(!db) {
-        cerr<<"Error: Could not open file."<<endl;
-        return;
-    }
-    for(int i=0; i<table.size(); i++) {
-        Student* curStudent = table.at(i);
-        while(nullptr!=curStudent) {
-            db<<"Student: "<<curStudent->name<<endl;
-            db<<"     Course: "<<curStudent->course<<endl;
-            db<<"     Teacher: "<<curStudent->teacher<<endl;
-            db<<"     Marks: "<<curStudent->marks<<endl;
-            curStudent = curStudent->next;
-        }
-    }
-    db.close();
-}
-
-void StudentRegHashTable::printJunctionAll() {
-    junctiondb.open("junctionDB.txt", ios::out);
-    if(!junctiondb) {
-        cerr<<"Error: Could not open file."<<endl;
-        return;
-    }
-    for(auto & [key, p] : studentCourseTable) {  
-        junctiondb<<"Student: "<<p->name<<endl;
-        junctiondb<<"     Course: "<<p->course<<endl;
-    }
-    junctiondb.close();
-}*/
-
 void StudentRegHashTable::printStudentList() {
     dbstudentlist.open("studentlist.txt", ios::out);
     dbstudentlist<<"List of all the students:"<<endl<<endl;
@@ -578,7 +676,7 @@ void StudentRegHashTable::studentRC(string student){
 }
 
 void StudentRegHashTable::printAll(){
-    dball.open("All.txt", ios::out);
+    dball.open("all.txt", ios::out);
 
     //loop through all the student and do each thing for each student
     for(int i=0; i<studentlist.size(); i++) {
@@ -616,20 +714,6 @@ void StudentRegHashTable::printAll(){
     dball.close();
 }
 
-/*void StudentRegHashTable::printOne(string key) {
-    const int slot = hash(key);
-    Student* curStudent = table.at(slot);
-    while(nullptr!=curStudent) {
-        if(curStudent->name == key) {
-            cout<<"     Student: "<<curStudent->name<<endl;
-            cout<<"     Course: "<<curStudent->course<<endl;
-            cout<<"     Teacher: "<<curStudent->teacher<<endl;
-            cout<<"     Marks: "<<curStudent->marks<<endl;
-        }
-        curStudent = curStudent->next;
-    } 
-}*/
-
 int StudentRegHashTable::hash(string key) const { //needs to be updated but this is my studentlist
     char firstLetter = tolower(key[0]);
     return firstLetter - 'a';
@@ -652,6 +736,109 @@ string StudentRegHashTable::hashTC (string teacher, string course) const { //tea
     return (hashStudentCourse(teacher, course));
 }
 
+/*void StudentRegHashTable::insert(string key, string teacher, string course, double marks) {
+    const int slot = hash(key);
+    Student* newStudent = new Student;
+    newStudent->name = key;
+    newStudent->teacher = teacher;
+    newStudent->course = course;
+    newStudent->marks = marks;
+    newStudent->next = table.at(slot);
+    table.at(slot) = newStudent;
+
+    const string scSlot = hashStudentCourse(key, course);
+    SC* scNewStudent = new SC;
+    scNewStudent->name = key;
+    scNewStudent->course = course;
+    scNewStudent->next = studentCourseTable[scSlot]; //not at. bc it wasn't alr initiallized
+    studentCourseTable[scSlot] = scNewStudent;
+} 
+
+bool StudentRegHashTable::lookup(string key) const {
+    const int slot = hash(key);
+    Student* curStudent = table.at(slot);
+    while(nullptr!=curStudent) {
+        if(curStudent->name == key) {
+            return true;
+        }
+        curStudent = curStudent->next;
+    }
+    return false; 
+} */
+
+/* void StudentRegHashTable::remove(string key) {
+    if(lookup(key)){
+        int i = hash(key);
+        Student* p = table[i];
+        Student* prev = nullptr;
+
+        while(p!=nullptr) {
+            if(p->name==key) {
+                if(prev==0){
+                    table[i]=p->next;
+                } else {
+                    prev->next=p->next;
+                }
+            delete p;
+            return;
+            }
+        prev=p;
+        p=p->next;
+        }
+
+        for(auto & [key, p] : studentCourseTable) {
+        if(p->name==key) {
+            delete p;
+        }
+        }
+    } 
+}
+
+void StudentRegHashTable::printAll() {
+    /*db.open("studentRegDB.txt", ios::out);
+    if(!db) {
+        cerr<<"Error: Could not open file."<<endl;
+        return;
+    }
+    for(int i=0; i<table.size(); i++) {
+        Student* curStudent = table.at(i);
+        while(nullptr!=curStudent) {
+            db<<"Student: "<<curStudent->name<<endl;
+            db<<"     Course: "<<curStudent->course<<endl;
+            db<<"     Teacher: "<<curStudent->teacher<<endl;
+            db<<"     Marks: "<<curStudent->marks<<endl;
+            curStudent = curStudent->next;
+        }
+    }
+    db.close();
+}
+
+void StudentRegHashTable::printJunctionAll() {
+    junctiondb.open("junctionDB.txt", ios::out);
+    if(!junctiondb) {
+        cerr<<"Error: Could not open file."<<endl;
+        return;
+    }
+    for(auto & [key, p] : studentCourseTable) {  
+        junctiondb<<"Student: "<<p->name<<endl;
+        junctiondb<<"     Course: "<<p->course<<endl;
+    }
+    junctiondb.close();
+}*/
+
+/*void StudentRegHashTable::printOne(string key) {
+    const int slot = hash(key);
+    Student* curStudent = table.at(slot);
+    while(nullptr!=curStudent) {
+        if(curStudent->name == key) {
+            cout<<"     Student: "<<curStudent->name<<endl;
+            cout<<"     Course: "<<curStudent->course<<endl;
+            cout<<"     Teacher: "<<curStudent->teacher<<endl;
+            cout<<"     Marks: "<<curStudent->marks<<endl;
+        }
+        curStudent = curStudent->next;
+    } 
+}*/
 
 /*
  // Person Class

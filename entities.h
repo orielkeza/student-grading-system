@@ -15,7 +15,7 @@ class StudentRegHashTable {
         void addStudent_Course(std::string student, std::string course);
         void addTeacher_Course(std::string teacher, std::string course);
         void addMarks(double marks, std::string student, std::string course);
-        void insert(std::string name, std::string teacher, std::string course, double marks);
+        //void insert(std::string name, std::string teacher, std::string course, double marks);
         //void remove(std::string studentName);
         void updateTeacher(std::string oldTeacherN, std::string newTeacherN);
         void updateMarks(std::string student, std::string course, double newMarks);
@@ -43,7 +43,19 @@ class StudentRegHashTable {
         void courseTeachers(std::string course);
         void studentRC(std::string student);
 
-        void loadDB(std::fstream& fileStd, std::fstream& fileSC);
+        void loadDB(std::fstream& csfile, std::fstream& scfile, std::fstream& tcfile, std::fstream& ctfile,
+            std::fstream& afile, std::fstream& slfile, std::fstream& clfile, std::fstream& tlfile, std::fstream& rcfile);
+        
+        void loadCS(std::fstream& csfile);
+        void loadSC(std::fstream& scfile);
+        void loadTC(std::fstream& tcfile);
+        void loadCT(std::fstream& ctfile);
+        void loadA(std::fstream& afile);
+        void loadSL(std::fstream& slfile);
+        void loadCL(std::fstream& clfile);
+        void loadTL(std::fstream& tlfile);
+        void loadRC(std::fstream& rcfile);
+
         static const int DefaultBuckets = 26;
     protected:
         /*struct Student {
