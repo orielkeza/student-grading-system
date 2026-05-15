@@ -72,7 +72,7 @@ class StudentRegHashTable {
         std::vector<Student*> table;
         std::vector<Student*> studentlist;
         std::vector<Teacher*> teacherlist;
-        std::map<std::string, Course*> courselist;
+        std::vector<Course*> courselist;
         std::map<std::string, Marks*> markslist;
         std::map<std::string, SC*> studentCourseTable;
         std::map<std::string, TC*> teacherCourseTable;

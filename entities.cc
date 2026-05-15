@@ -15,7 +15,7 @@
 using namespace std;
 
 StudentRegHashTable::StudentRegHashTable()
-    : table{DefaultBuckets}, studentCourseTable{}, teacherCourseTable{}, studentlist{DefaultBuckets}, courselist{}, markslist{}, teacherlist{DefaultBuckets} {
+    : studentCourseTable{}, teacherCourseTable{}, studentlist{DefaultBuckets}, courselist{DefaultBuckets}, markslist{}, teacherlist{DefaultBuckets} {
         loadDB(db, junctiondb);
     }
 
@@ -94,11 +94,11 @@ void StudentRegHashTable::addTeacher(string teacher) {
 }
 
 void StudentRegHashTable::addCourse(string course) {
-    const string slot = hashCourse(course);
+    const int slot = hashCourse(course);
     Course* newCourse = new Course;
     newCourse->courseName = course;
-    newCourse->next =courselist[slot];
-    courselist[slot]=newCourse;
+    newCourse->next =courselist.at(slot);
+    courselist.at(slot)=newCourse;
 }
 
 bool StudentRegHashTable::student_check(string student) const { //to make sure student and course exist
@@ -129,10 +129,13 @@ bool StudentRegHashTable::teacher_check(string teacher) const { //to make sure s
 
 bool StudentRegHashTable::course_check(string course) const { //to make sure student and course exist
 //look through courselist
-    for(auto & [key, p] : courselist) {
-        if(p->courseName==course) {
+    const int slot = hash(course);
+    Course* curCourse = courselist.at(slot);
+    while(nullptr!=curCourse) {
+        if(curCourse->courseName == course) {
             return true;
         }
+        curCourse = curCourse->next;
     }
     return false;
 }
@@ -206,7 +209,7 @@ void StudentRegHashTable::insert(string key, string teacher, string course, doub
 } */
 
 bool StudentRegHashTable::lookup(string key) const {
-    const int slot = hash(key);
+    /*const int slot = hash(key);
     Student* curStudent = table.at(slot);
     while(nullptr!=curStudent) {
         if(curStudent->name == key) {
@@ -214,7 +217,7 @@ bool StudentRegHashTable::lookup(string key) const {
         }
         curStudent = curStudent->next;
     }
-    return false;
+    return false; */
 }
 
 void StudentRegHashTable::updateCourse(string oldCourseN, string newCourseN) {
@@ -228,14 +231,17 @@ void StudentRegHashTable::updateCourse(string oldCourseN, string newCourseN) {
         if(p->course==oldCourseN) {
             p->course=newCourseN;
         }
-    }    
+    }   
 
     if(course_check){
-        for(auto & [key, p] : courselist) {
-        if(p->courseName==oldCourseN) {
-            p->courseName=newCourseN;
+        const int slot = hash(oldCourseN);
+        Course* curCourse = courselist.at(slot);
+        while(nullptr!=curCourse) {
+            if(curCourse->courseName == oldCourseN) {
+               curCourse->courseName=newCourseN;
+            }
+            curCourse = curCourse->next;
         }
-    }
     }
 }
 
@@ -256,7 +262,7 @@ void StudentRegHashTable::updateStudent(string oldStudentN, string newStudentN) 
 }
 
 void StudentRegHashTable::remove(string key) {
-    if(lookup(key)){
+    /*if(lookup(key)){
         int i = hash(key);
         Student* p = table[i];
         Student* prev = nullptr;
@@ -280,11 +286,11 @@ void StudentRegHashTable::remove(string key) {
             delete p;
         }
         }
-    }
+    } */
 }
 
 void StudentRegHashTable::printAll() {
-    db.open("studentRegDB.txt", ios::out);
+    /*db.open("studentRegDB.txt", ios::out);
     if(!db) {
         cerr<<"Error: Could not open file."<<endl;
         return;
@@ -299,7 +305,7 @@ void StudentRegHashTable::printAll() {
             curStudent = curStudent->next;
         }
     }
-    db.close();
+    db.close();*/
 }
 
 void StudentRegHashTable::printJunctionAll() {
@@ -336,7 +342,7 @@ void StudentRegHashTable::printCourseList(string studentName) {
 }
 
 void StudentRegHashTable::printOne(string key) {
-    const int slot = hash(key);
+    /*const int slot = hash(key);
     Student* curStudent = table.at(slot);
     while(nullptr!=curStudent) {
         if(curStudent->name == key) {
@@ -346,7 +352,7 @@ void StudentRegHashTable::printOne(string key) {
             cout<<"     Marks: "<<curStudent->marks<<endl;
         }
         curStudent = curStudent->next;
-    }
+    } */
 }
 
 int StudentRegHashTable::hash(string key) const { //needs to be updated but this is my studentlist
