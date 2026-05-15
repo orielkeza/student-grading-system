@@ -1,0 +1,8 @@
+Student: Oriel
+    Course:  Math
+     Teacher : Charles
+     Marks: 90
+Student: Solange
+     Course:  English
+     Teacher : Egide
+     Marks: 75
