@@ -9,9 +9,20 @@ class StudentRegHashTable {
     public:
         StudentRegHashTable();
         virtual ~StudentRegHashTable();
-        void insert(std::string name, std::string teacher, std::string course, double marks);
+        void addStudent(std::string student);
+        void addTeacher(std::string teacher);
+        void addCourse(std::string course);
+        void StudentRegHashTable::addStudent_Course(std::string student, std::string course);
+        void StudentRegHashTable::addTeacher_Course(std::string teacher, std::string course);
+        void StudentRegHashTable::addMarks(double marks, std::string student, std::string course);
+       // void insert(std::string name, std::string teacher, std::string course, double marks);
         void remove(std::string studentName);
         bool lookup(std::string studentName) const;
+        bool student_course_check(std::string student, std::string course) const; //to make sure student and course exist
+        bool teacher_course_check(std::string teacher, std::string course) const; //to make sure student and course exist
+        bool student_check(std::string student) const; //to make sure student and course exist
+        bool teacher_check(std::string teacher) const; //to make sure student and course exist
+        bool course_check(std::string course) const; //to make sure student and course exist
         void printAll();
         void printJunctionAll();
         void printOne(std::string studentName);
@@ -22,31 +33,58 @@ class StudentRegHashTable {
         void loadDB(std::fstream& fileStd, std::fstream& fileSC);
         static const int DefaultBuckets = 26;
     protected:
-        struct Student {
+        /*struct Student {
             std::string name;//student name will be the key for now until i add id generation
             Student* next;
             std::string teacher;
             std::string course;
             double marks;
+        };*/
+        struct Student {
+            std::string name;
+            Student* next;
+        };
+        struct Teacher {
+            std::string name;
+            Teacher* next;
         };
         struct SC {
             std::string name;//student name will be the key for now until i add id generation
             SC* next;
             std::string course;
         };
+        struct TC {
+            std::string name;//student name will be the key for now until i add id generation
+            TC* next;
+            std::string course;
+        };
         struct Course {
             std::string courseName;
             Course* next;
         };
+        struct Marks {
+            double marks;
+            std::string studentName;
+            std::string courseName;
+            Marks* next;
+        };
     private:
         std::vector<Student*> table;
+        std::vector<Student*> studentlist;
+        std::vector<Teacher*> teacherlist;
+        std::map<std::string, Course*> courselist;
+        std::map<std::string, Marks*> markslist;
         std::map<std::string, SC*> studentCourseTable;
+        std::map<std::string, TC*> teacherCourseTable;
         std::fstream db;
         std::fstream junctiondb;
         std::fstream dbCourseList;
         std::fstream dbStudentList;
         int hash(std::string key) const;//this is what i need to define to get alphabetical order
         std::string hashStudentCourse(std::string studentName, std::string courseName) const;//to store the student and course together
+        std::string hashMarks (std::string studentName, std::string courseName, double marks) const; //marks_student_course
+        int hashCourse (std::string course) const; //courselist
+        std::string hashTC (std::string teacher, std::string course) const; //teacher_course
 };
 /*
 class Marks {

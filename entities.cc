@@ -15,7 +15,9 @@
 using namespace std;
 
 StudentRegHashTable::StudentRegHashTable()
-    : table{DefaultBuckets}, studentCourseTable{} {}
+    : table{DefaultBuckets}, studentCourseTable{}, teacherCourseTable{}, studentlist{DefaultBuckets}, courselist{}, markslist{}, teacherlist{DefaultBuckets} {
+        loadDB(db, junctiondb);
+    }
 
 StudentRegHashTable::~StudentRegHashTable() {
     printAll();
@@ -52,28 +54,139 @@ void StudentRegHashTable::loadDB(fstream& fileStd, fstream& fileSC) { //aka db a
         //remember to add to the second hash table as well
         //this is to just add the stuff to the tables and then proceed to add as normal
         //when i close the application (dtor) rewrite the files with the new info from both
-    
+        string key = sStd;
+        string teacher;
+        string course;
+        double marks=0.0;
     while(fileStd>>sStd) {
-        if(sStd=="Student: ") {
-            string key = sStd;
-            string teacher;
-            string course;
-            double marks;
-            if (sStd=="     Teacher: ") {
-                teacher = sStd;
-            } else if (sStd=="     Course: ") {
-                course = sStd; 
-            } else if (sStd=="     Marks: ") {
-                marks = sStd;
-            }
-
-        insert(key, teacher, course, marks);
+        if(sStd=="Student:") {
+            fileStd>>key;
+        } else if (sStd=="Teacher:") {
+            fileStd>>teacher;
+        } else if (sStd=="Course:") {
+            fileStd>>course; 
+        } else if (sStd=="Marks:") {
+            string marksString;
+            fileStd>>marksString;
+            marks=stod(marksString);
+            insert(key, teacher, course, marks);
         }
     }
+
     fileStd.close();
     fileSC.close();
 }
 
+void StudentRegHashTable::addStudent(string student) {
+    const int slot = hash(student);
+    Student* newStudent = new Student;
+    newStudent->name = student;
+    newStudent->next =studentlist.at(slot);
+    studentlist.at(slot)=newStudent;
+}
+
+void StudentRegHashTable::addTeacher(string teacher) {
+    const int slot = hash(teacher);
+    Teacher* newTeacher = new Teacher;
+    newTeacher->name = teacher;
+    newTeacher->next = teacherlist.at(slot);
+    teacherlist.at(slot)=newTeacher;
+}
+
+void StudentRegHashTable::addCourse(string course) {
+    const string slot = hashCourse(course);
+    Course* newCourse = new Course;
+    newCourse->courseName = course;
+    newCourse->next =courselist[slot];
+    courselist[slot]=newCourse;
+}
+
+bool StudentRegHashTable::student_check(string student) const { //to make sure student and course exist
+//look through studentlist
+    const int slot = hash(student);
+    Student* curStudent = studentlist.at(slot);
+    while(nullptr!=curStudent) {
+        if(curStudent->name == student) {
+            return true;
+        }
+        curStudent = curStudent->next;
+    }
+    return false;
+}
+
+bool StudentRegHashTable::teacher_check(string teacher) const { //to make sure student and course exist
+//look through teacherlist
+    const int slot = hash(teacher);
+    Teacher* curTeacher = teacherlist.at(slot);
+    while(nullptr!=curTeacher) {
+        if(curTeacher->name == teacher) {
+            return true;
+        }
+        curTeacher = curTeacher->next;
+    }
+    return false;
+}
+
+bool StudentRegHashTable::course_check(string course) const { //to make sure student and course exist
+//look through courselist
+    for(auto & [key, p] : courselist) {
+        if(p->courseName==course) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool StudentRegHashTable::student_course_check(string student, string course) const { //to make sure student and course exist
+//look through studentlist and courselist
+    if((true==student_check(student))&&(true==course_check(course))){
+        return true;
+    }
+    return false;
+}
+
+bool StudentRegHashTable::teacher_course_check(string teacher, string course) const { //to make sure student and course exist
+//look through studentlist and courselist
+    if((true==teacher_check(teacher))&&(true==course_check(course))){
+        return true;
+    }
+    return false;
+}
+
+void StudentRegHashTable::addStudent_Course(string student, string course){
+    if(!(student_course_check(student,course))) return;
+
+    const string scSlot = hashStudentCourse(student, course);
+    SC* scNewStudent = new SC;
+    scNewStudent->name = student;
+    scNewStudent->course = course;
+    scNewStudent->next = studentCourseTable[scSlot]; //not at. bc it wasn't alr initiallized
+    studentCourseTable[scSlot] = scNewStudent;
+}
+//needs to be updated for the teacher course connection
+void StudentRegHashTable::addTeacher_Course(string teacher, string course){
+    if(!(teacher_course_check(teacher,course))) return;
+
+    const string tcSlot = hashStudentCourse(teacher, course);
+    TC* tcNewTeacher = new TC;
+    tcNewTeacher->name = teacher;
+    tcNewTeacher->course = course;
+    tcNewTeacher->next = teacherCourseTable[tcSlot]; //not at. bc it wasn't alr initiallized
+    teacherCourseTable[tcSlot] = tcNewTeacher;
+}
+
+void StudentRegHashTable::addMarks(double marks, string student, string course) {
+    if(!(student_course_check(student,course))) return;
+
+    const string MSlot = hashMarks(student, course, marks);
+    Marks* newMarks = new Marks;
+    newMarks->marks = marks;
+    newMarks->studentName = student;
+    newMarks->courseName = course;
+    newMarks->next = markslist[MSlot]; //not at. bc it wasn't alr initiallized
+    markslist[MSlot] = newMarks;  
+}
+/*
 void StudentRegHashTable::insert(string key, string teacher, string course, double marks) {
     const int slot = hash(key);
     Student* newStudent = new Student;
@@ -90,7 +203,7 @@ void StudentRegHashTable::insert(string key, string teacher, string course, doub
     scNewStudent->course = course;
     scNewStudent->next = studentCourseTable[scSlot]; //not at. bc it wasn't alr initiallized
     studentCourseTable[scSlot] = scNewStudent;
-}
+} */
 
 bool StudentRegHashTable::lookup(string key) const {
     const int slot = hash(key);
@@ -110,6 +223,20 @@ void StudentRegHashTable::updateCourse(string oldCourseN, string newCourseN) {
             p->course=newCourseN;
         }
     }
+
+    for(auto & [key, p] : teacherCourseTable) {
+        if(p->course==oldCourseN) {
+            p->course=newCourseN;
+        }
+    }    
+
+    if(course_check){
+        for(auto & [key, p] : courselist) {
+        if(p->courseName==oldCourseN) {
+            p->courseName=newCourseN;
+        }
+    }
+    }
 }
 
 void StudentRegHashTable::updateStudent(string oldStudentN, string newStudentN) {
@@ -117,6 +244,14 @@ void StudentRegHashTable::updateStudent(string oldStudentN, string newStudentN) 
         if(p->name==oldStudentN) {
             p->name=newStudentN;
         }
+    }
+    const int slot = hash(oldStudentN);
+    Student* curStudent = studentlist.at(slot);
+    while(nullptr!=curStudent) {
+        if(curStudent->name == oldStudentN) {
+            curStudent->name = newStudentN;
+        }
+        curStudent = curStudent->next;
     }
 }
 
@@ -214,15 +349,30 @@ void StudentRegHashTable::printOne(string key) {
     }
 }
 
-int StudentRegHashTable::hash(string key) const {
+int StudentRegHashTable::hash(string key) const { //needs to be updated but this is my studentlist
     char firstLetter = tolower(key[0]);
     return firstLetter - 'a';
 }
 
-string StudentRegHashTable::hashStudentCourse (string studentName, string courseName) const {
+string StudentRegHashTable::hashStudentCourse (string studentName, string courseName) const { //student_course
     string combination = studentName + courseName;
     return combination;
 }
+
+string StudentRegHashTable::hashMarks (string studentName, string courseName, double marks) const {//marks_student_course
+    string combination = studentName + courseName;
+    string marksString=to_string(marks);
+    return combination+marksString;
+}
+
+int StudentRegHashTable::hashCourse (string course) const{ //courselist
+    return (hash(course));
+}
+
+string StudentRegHashTable::hashTC (string teacher, string course) const { //teacher_course
+    return (hashStudentCourse(teacher, course));
+}
+
 
 /*
  // Person Class
