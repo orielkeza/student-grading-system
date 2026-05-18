@@ -115,9 +115,7 @@ I often overcomplicated things but found that often times the simpler answer was
 ## Planned Improvements
 
 - Fix update functions to reinsert nodes into the correct bucket
-- Fix remove functions to erase map entries after deleting the node
 - Add duplicate checking to all `add*` functions
-- Fix `loadSL`/`loadCL`/`loadTL` to parse correctly (read line-by-line with `getline` instead of token-by-token with `>>`)
 - Add ID generation so names don't need to be globally unique
 - Build the interactive terminal menu (teacher/student/course registration flows)
 - Separate `entities.cc` into more focused files as the codebase grows
