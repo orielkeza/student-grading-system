@@ -1,2 +1,147 @@
-# student-grading-system
-C++ backend application for student registration
+# Student Registration System (C++)
+
+A C++ implementation of a student registration system built around a custom hash table. Students and teachers can be registered, courses can be created and linked to both, and marks can be assigned and retrieved. Data persists across sessions through a file-based storage system modeled loosely on how a database loads and saves records.
+
+---
+
+## Background
+
+This project started as a way to ease the transition from C++ to Java and get more comfortable with d the mechanics of many-to-many relationships in data. Much harder in plain C++ than in SQL. I had to start over a lot and resturcture what I was doing often the better I understood different concepts. 
+
+---
+
+## Features
+
+- Register students, teachers, and courses
+- Link students to courses and teachers to courses (student-course is many-to-many; teacher-course is one-to-many per course)
+- Assign and update marks per student per course
+- Update names for students, teachers, and courses across all tables in one call
+- Remove students, teachers, or courses (cascades to junction tables)
+- Query views: a student's courses, a course's students, a teacher's courses, a course's teachers
+- Generate a student report card showing course, marks, and teacher
+- Load data from flat files on startup, save back on shutdown — so state carries over between sessions
+
+---
+
+## Tech Stack
+
+- **C++17**
+- **Google Test** for unit testing
+- No external libraries beyond the standard library and GTest
+- Flat `.txt` files used as a persistence layer (no database)
+
+---
+
+## Architecture
+
+Everything lives in a single class, `StudentRegHashTable`, defined in `entities.h` and implemented in `entities.cc`.
+
+### Data structures
+
+There are three separate 26-bucket hash tables (one each for students, teachers, and courses), each implemented as a `std::vector` of linked list heads. The hash function is simple: take the first letter of the name, lowercase it, subtract `'a'`. So "Alice" goes in bucket 0, "Bob" in bucket 1, and so on. Collisions within a bucket are handled by chaining.
+
+The many-to-many relationships are handled through two junction tables: `studentCourseTable` (student ↔ course) and `teacherCourseTable` (teacher ↔ course). These are `std::map<std::string, SC*>` and `std::map<std::string, TC*>` respectively. The key is a string concatenation (hash function) of the two names, e.g. `"AliceMath"` for Alice enrolled in Math. Marks are stored the same way in a `std::map<std::string, Marks*>`.
+
+### File persistence
+
+On construction, `loadDB()` is called, which reads from flat text files and populates the in-memory tables. On destruction, `printAll()` write everything back out. The intent is to behave like loading a web application's saved state where you process the file, make changes during the session, then overwrite on exit.
+
+The main file is `all.txt`, which stores full records in the format:
+```
+Student: Alice Course: Math Marks: 95.0 Teacher: Charles
+```
+There are also separate files for each view: `studentlist.txt`, `courselist.txt`, `teacherlist.txt`, `studentcourses.txt`, `coursestudents.txt`, `teachercourses.txt`, `courseteachers.txt`, and `reportcard.txt`.
+
+---
+
+## Setup and Usage
+
+### Requirements
+
+- A C++17-compatible compiler (tested with `g++`)
+- Google Test installed
+
+### Compiling the tests
+
+```bash
+g++ -std=c++17 entitiesTest.cc entities.cc entities.h -lgtest -lgtest_main -pthread -o run_tests
+```
+
+### Running the tests
+
+```bash
+./run_tests
+```
+
+There is no standalone `main.cc` or interactive menu in the current codebase — the application logic is exercised entirely through the test suite for now. The original plan included a USSD-style terminal menu (options A/B/C for teacher, student, and course registration), but that hasn't been implemented yet.
+
+---
+
+## Testing
+
+Tests are written using Google Test and live in `entitiesTest.cc`. They cover:
+
+- Default bucket count
+- Adding and checking existence for students, teachers, and courses
+- Precondition enforcement (junction operations require both entities to exist first)
+- Update operations for names and marks
+- Remove operations and cascade behavior
+- Collision handling (multiple entries in the same bucket)
+- Smoke tests for all print/file-write functions (verify no crash)
+- Destructor behavior on heap-allocated tables
+
+---
+
+## Known Bugs and Incomplete Functionality
+
+The core data structure works well enough that most individual operations pass their tests, but there are a few issues that affect the correctness and stability of the program.
+
+### Update functions don't move nodes to the correct bucket
+
+`updateStudent("Alice", "Bob")` renames the node in-place but leaves it sitting in the `'A'` bucket. Any subsequent `student_check("Bob")` looks in the `'B'` bucket and returns false. The same problem exists in `updateTeacher` and `updateCourse`. The fix is to remove the node, reinsert it under the new name, and update all referencing junction table entries — the current implementation only does the third part. As a result, the update tests will fail despite the operations appearing to succeed.
+
+### Remove functions leave dangling pointers in maps
+
+`removeCourse`, `removeStudent`, and `removeTeacher` call `delete p` on values inside the `studentCourseTable`, `teacherCourseTable`, and `markslist` maps, but never call `map.erase(key)`. The map entries remain, pointing to freed memory. Any subsequent iteration over those maps — including the ones inside the destructor — is undefined behavior.
+
+### List file loaders silently do nothing
+
+`loadSL()`, `loadCL()`, and `loadTL()` read the file token by token using `>>` but check for multi-word strings like `"List of all the students:"`. Since `>>` reads one whitespace-delimited token at a time, the condition never matches and nothing gets loaded. The code falls back to `loadA()` for all real data, and these functions are effectively dead. This also means that if `all.txt` doesn't exist but the individual list files do, the application starts empty.
+
+### `loadCS` parser is broken
+
+The parsing logic in `loadCS()` reads a token into `cs`, immediately overwrites it with the next token, uses the overwritten value as `course`, then checks whether the (already overwritten) `cs` equals `"'s Students:"`. The check can never succeed as written.
+
+### `loadSC` and `loadCT` have their insert calls commented out
+
+`loadSC()` reads student-course pairs from `studentcourses.txt` but the `addStudent_Course` call inside it is commented out. Same for `loadCT()`. These files are write-only at the moment — they get saved but never read back in, so the corresponding relationship data doesn't survive a restart. `loadA()` handles this for the full `all.txt` format, but the specialized files are incomplete.
+
+### No duplicate checking on add
+
+`addStudent`, `addTeacher`, and `addCourse` don't check whether the name already exists before inserting. Since `loadA()` calls all three unconditionally, running the application twice in a row creates duplicate nodes in every bucket. Lookups still work (they return true on the first match), but duplicates accumulate silently in memory and get written back to files on exit.
+
+### Hash key collisions in junction tables
+
+The junction key is formed by plain string concatenation: `studentName + courseName`. So a student named `"Al"` enrolled in `"iceMath"` produces the same key as a student named `"Alice"` enrolled in `"Math"`. This isn't an issue with realistic names but is a structural flaw if name inputs aren't validated.
+
+---
+
+## What I Learned / What I'd Do Differently
+
+The biggest thing that took time was understanding how to model many-to-many relationships without a real database, and that keeping the junction data consistent when you update or delete from the primary tables requires explicit cascade logic. SQL handles that for you; in C++ you have to think through it yourself.
+
+I also spent too long trying to design multiple files to draw from, then one unified file format before landing on the approach of having `all.txt` as the main source to load from and generating the specialized view files on demand.
+
+I often overcomplicated things but found that often times the simpler answer was usually the best way to go about it.
+
+---
+
+## Planned Improvements
+
+- Fix update functions to reinsert nodes into the correct bucket
+- Fix remove functions to erase map entries after deleting the node
+- Add duplicate checking to all `add*` functions
+- Fix `loadSL`/`loadCL`/`loadTL` to parse correctly (read line-by-line with `getline` instead of token-by-token with `>>`)
+- Add ID generation so names don't need to be globally unique
+- Build the interactive terminal menu (teacher/student/course registration flows)
+- Separate `entities.cc` into more focused files as the codebase grows
