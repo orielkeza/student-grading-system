@@ -96,34 +96,13 @@ Tests are written using Google Test and live in `entitiesTest.cc`. They cover:
 
 The core data structure works well enough that most individual operations pass their tests, but there are a few issues that affect the correctness and stability of the program.
 
-### Update functions don't move nodes to the correct bucket
-
-`updateStudent("Alice", "Bob")` renames the node in-place but leaves it sitting in the `'A'` bucket. Any subsequent `student_check("Bob")` looks in the `'B'` bucket and returns false. The same problem exists in `updateTeacher` and `updateCourse`. The fix is to remove the node, reinsert it under the new name, and update all referencing junction table entries — the current implementation only does the third part. As a result, the update tests will fail despite the operations appearing to succeed.
-
-### Remove functions leave dangling pointers in maps
-
-`removeCourse`, `removeStudent`, and `removeTeacher` call `delete p` on values inside the `studentCourseTable`, `teacherCourseTable`, and `markslist` maps, but never call `map.erase(key)`. The map entries remain, pointing to freed memory. Any subsequent iteration over those maps — including the ones inside the destructor — is undefined behavior.
-
-### List file loaders silently do nothing
-
-`loadSL()`, `loadCL()`, and `loadTL()` read the file token by token using `>>` but check for multi-word strings like `"List of all the students:"`. Since `>>` reads one whitespace-delimited token at a time, the condition never matches and nothing gets loaded. The code falls back to `loadA()` for all real data, and these functions are effectively dead. This also means that if `all.txt` doesn't exist but the individual list files do, the application starts empty.
-
-### `loadCS` parser is broken
-
-The parsing logic in `loadCS()` reads a token into `cs`, immediately overwrites it with the next token, uses the overwritten value as `course`, then checks whether the (already overwritten) `cs` equals `"'s Students:"`. The check can never succeed as written.
-
-### `loadSC` and `loadCT` have their insert calls commented out
-
-`loadSC()` reads student-course pairs from `studentcourses.txt` but the `addStudent_Course` call inside it is commented out. Same for `loadCT()`. These files are write-only at the moment — they get saved but never read back in, so the corresponding relationship data doesn't survive a restart. `loadA()` handles this for the full `all.txt` format, but the specialized files are incomplete.
-
-### No duplicate checking on add
-
-`addStudent`, `addTeacher`, and `addCourse` don't check whether the name already exists before inserting. Since `loadA()` calls all three unconditionally, running the application twice in a row creates duplicate nodes in every bucket. Lookups still work (they return true on the first match), but duplicates accumulate silently in memory and get written back to files on exit.
-
-### Hash key collisions in junction tables
-
-The junction key is formed by plain string concatenation: `studentName + courseName`. So a student named `"Al"` enrolled in `"iceMath"` produces the same key as a student named `"Alice"` enrolled in `"Math"`. This isn't an issue with realistic names but is a structural flaw if name inputs aren't validated.
-
+- Update functions don't move nodes to the correct bucket
+- Remove functions leave dangling pointers in maps
+- List file loaders silently do nothing
+- `loadCS` parser is broken
+- `loadSC` and `loadCT` have their insert calls commented out
+- No duplicate checking on add
+- Hash key collisions in junction tables
 ---
 
 ## What I Learned / What I'd Do Differently
