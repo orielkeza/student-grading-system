@@ -43,18 +43,17 @@ class StudentRegHashTable {
         void courseTeachers(std::string course);
         void studentRC(std::string student);
 
-        void loadDB(std::fstream& csfile, std::fstream& scfile, std::fstream& tcfile, std::fstream& ctfile,
-            std::fstream& afile, std::fstream& slfile, std::fstream& clfile, std::fstream& tlfile, std::fstream& rcfile);
+        void loadDB();
         
-        void loadCS(std::fstream& csfile);
-        void loadSC(std::fstream& scfile);
-        void loadTC(std::fstream& tcfile);
-        void loadCT(std::fstream& ctfile);
-        void loadA(std::fstream& afile);
-        void loadSL(std::fstream& slfile);
-        void loadCL(std::fstream& clfile);
-        void loadTL(std::fstream& tlfile);
-        void loadRC(std::fstream& rcfile);
+        void loadCS();
+        void loadSC();
+        void loadTC();
+        void loadCT();
+        void loadA();
+        void loadSL();
+        void loadCL();
+        void loadTL();
+        void loadRC();
 
         static const int DefaultBuckets = 26;
     protected:

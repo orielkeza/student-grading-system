@@ -16,7 +16,7 @@ using namespace std;
 
 StudentRegHashTable::StudentRegHashTable()
     : studentCourseTable{}, teacherCourseTable{}, studentlist{DefaultBuckets}, courselist{DefaultBuckets}, markslist{}, teacherlist{DefaultBuckets} {
-        loadDB(dbcoursestudents, dbstudentcourses, dbteachercourses, dbcoursestudents, dball, dbstudentlist, dbcourselist, dbteacherlist, dbreportcard);
+        loadDB();
     }
 
 StudentRegHashTable::~StudentRegHashTable() {
@@ -72,9 +72,9 @@ StudentRegHashTable::~StudentRegHashTable() {
         //this is to just add the stuff to the tables and then proceed to add as normal
         //when i close the application (dtor) rewrite the files with the new info from both
 
-void StudentRegHashTable::loadCS(fstream& csfile){
+void StudentRegHashTable::loadCS(){
     string cs;
-    dbcoursestudents.open("coursestudents.txt", ios::out);
+    dbcoursestudents.open("coursestudents.txt", ios::in);
     if (!dbcoursestudents) {
         cerr<< "Cannot open file."<<endl;
         return;
@@ -91,9 +91,9 @@ void StudentRegHashTable::loadCS(fstream& csfile){
     }
     dbcoursestudents.close();
 }
-void StudentRegHashTable::loadSC(fstream& scfile){
+void StudentRegHashTable::loadSC(){
     string sc;
-    dbstudentcourses.open("studentcourses.txt", ios::out);
+    dbstudentcourses.open("studentcourses.txt", ios::in);
     if (!dbstudentcourses) {
         cerr<< "Cannot open file."<<endl;
         return;
@@ -104,15 +104,15 @@ void StudentRegHashTable::loadSC(fstream& scfile){
         string student = sc;
         if(sc=="Courses:") {
             dbstudentcourses>>sc;
-            addStudent_Course(student,sc);
+            //addStudent_Course(student,sc);
         }
 
     }
     dbstudentcourses.close();
 }
-void StudentRegHashTable::loadTC(fstream& tcfile){
+void StudentRegHashTable::loadTC(){
     string tc;
-    dbteachercourses.open("teachercourses.txt", ios::out);
+    dbteachercourses.open("teachercourses.txt", ios::in);
     if (!dbteachercourses) {
         cerr<< "Cannot open file."<<endl;
         return;
@@ -129,9 +129,9 @@ void StudentRegHashTable::loadTC(fstream& tcfile){
     }
     dbteachercourses.close();
 }
-void StudentRegHashTable::loadCT(fstream& ctfile){
+void StudentRegHashTable::loadCT(){
     string ct;
-    dbcourseteachers.open("courseteachers.txt", ios::out);
+    dbcourseteachers.open("courseteachers.txt", ios::in);
     if (!dbcourseteachers) {
         cerr<< "Cannot open file."<<endl;
         return;
@@ -142,15 +142,15 @@ void StudentRegHashTable::loadCT(fstream& ctfile){
         string course = ct;
         if(ct=="Teachers:") {
             dbcourseteachers>>ct;
-            addTeacher_Course(ct, course);
+            //addTeacher_Course(ct, course);
         }
 
     }
     dbcourseteachers.close();
 }
-void StudentRegHashTable::loadA(fstream& afile){ //come back to this
+void StudentRegHashTable::loadA(){ //come back to this
     string a;
-    dball.open("all.txt", ios::out);
+    dball.open("all.txt", ios::in);
     if (!dball) {
         cerr<< "Cannot open file."<<endl;
         return;
@@ -165,15 +165,18 @@ void StudentRegHashTable::loadA(fstream& afile){ //come back to this
             dball>>a;
             student=a;
             addStudent(student);
+            dball>>a;
             if(a=="Course:") { 
                 dball>>a;
                 course=a;
                 addCourse(course);
                 addStudent_Course(student, course);
+                dball>>a;
                 if(a=="Marks:"){
                     dball>>a;
                     marks=stod(a);
                     addMarks(marks, student, course);
+                    dball>>a;
                     if(a=="Teacher:"){
                         dball>>a;
                         teacher=a;
@@ -184,12 +187,12 @@ void StudentRegHashTable::loadA(fstream& afile){ //come back to this
             }
 
         }
-    dball.close();
     }
+    dball.close();
 }
-void StudentRegHashTable::loadSL(fstream& slfile){
+void StudentRegHashTable::loadSL(){
     string sl;
-    dbstudentlist.open("studentlist.txt", ios::out);
+    dbstudentlist.open("studentlist.txt", ios::in);
     if (!dbstudentlist) {
         cerr<< "Cannot open file."<<endl;
         return;
@@ -204,9 +207,9 @@ void StudentRegHashTable::loadSL(fstream& slfile){
     }
     dbstudentlist.close();
 }
-void StudentRegHashTable::loadCL(fstream& clfile){
+void StudentRegHashTable::loadCL(){
     string cl;
-    dbcourselist.open("courselist.txt", ios::out);
+    dbcourselist.open("courselist.txt", ios::in);
     if (!dbcourselist) {
         cerr<< "Cannot open file."<<endl;
         return;
@@ -221,9 +224,9 @@ void StudentRegHashTable::loadCL(fstream& clfile){
     }
     dbcourselist.close();
 }
-void StudentRegHashTable::loadTL(fstream& tlfile){
+void StudentRegHashTable::loadTL(){
     string tl;
-    dbteacherlist.open("teacherlist.txt", ios::out);
+    dbteacherlist.open("teacherlist.txt", ios::in);
     if (!dbteacherlist) {
         cerr<< "Cannot open file."<<endl;
         return;
@@ -238,9 +241,9 @@ void StudentRegHashTable::loadTL(fstream& tlfile){
     }
     dbteacherlist.close();
 }
-void StudentRegHashTable::loadRC(fstream& rcfile){ //need to come back and fix this
+void StudentRegHashTable::loadRC(){ //need to come back and fix this
     string rc;
-    dbreportcard.open("reportcard.txt", ios::out);
+    dbreportcard.open("reportcard.txt", ios::in);
     if (!dbreportcard) {
         cerr<< "Cannot open file."<<endl;
         return;
@@ -254,15 +257,18 @@ void StudentRegHashTable::loadRC(fstream& rcfile){ //need to come back and fix t
         dbreportcard>>rc;
         student=rc;
         addStudent(student);
+        dbreportcard>>rc;
         if(rc=="Course:") {
             dbreportcard>>rc;
             course=rc;
             addCourse(course);
             addStudent_Course(student, course);
+            dbreportcard>>rc;
             if(rc=="Marks:"){
                 dbreportcard>>rc;
                 marks=stod(rc);
                 addMarks(marks, student, course);
+                dbreportcard>>rc;
                 if(rc=="Teacher:"){
                     dbreportcard>>rc;
                     teacher=rc;
@@ -276,20 +282,19 @@ void StudentRegHashTable::loadRC(fstream& rcfile){ //need to come back and fix t
     dbreportcard.close();
 }
 
-void StudentRegHashTable::loadDB(fstream& csfile, fstream& scfile, fstream& tcfile, fstream& ctfile,
-            fstream& afile, fstream& slfile, fstream& clfile, fstream& tlfile, fstream& rcfile) { 
+void StudentRegHashTable::loadDB() { 
     
     //loading order matters, you add bfr you link
                 
-     loadSL(slfile);
-     loadCL(clfile);
-     loadTL(tlfile);
-     loadCS(csfile);
-     loadSC(scfile);
-     loadTC(tcfile);
-     loadCT(ctfile);
-     loadRC(rcfile);
-     loadA(afile);
+     loadSL();
+     loadCL();
+     loadTL();
+     //loadCS();
+     //loadSC();
+     //loadTC();
+     //loadCT();
+     //loadRC();
+     loadA();
 }
 
 void StudentRegHashTable::addStudent(string student) {
@@ -504,9 +509,10 @@ void StudentRegHashTable::removeCourse(string course){
         Course* curCourse = courselist.at(slot);
         while(nullptr!=curCourse) {
             if(curCourse->courseName == course) {
-               delete curCourse;
+                Course* temp = curCourse;
+                curCourse=curCourse->next;
+                delete temp;
             }
-            curCourse = curCourse->next;
         }
         for(auto & [key, p] : markslist) {
             if(p->courseName==course) {
@@ -527,9 +533,10 @@ void StudentRegHashTable::removeStudent(string student){
         Student* curStudent = studentlist.at(slot);
         while(nullptr!=curStudent) {
             if(curStudent->name == student) {
-                delete curStudent;
+                Student* temp = curStudent;
+                curStudent = curStudent->next;
+                delete temp;
             }
-            curStudent = curStudent->next;
         }
 
         for(auto & [key, p] : markslist) {
@@ -551,9 +558,10 @@ void StudentRegHashTable::removeTeacher(string teacher){
         Teacher* curTeacher = teacherlist.at(slot);
         while(nullptr!=curTeacher) {
             if(curTeacher->name == teacher) {
-                delete curTeacher;
+                Teacher* temp = curTeacher;
+                curTeacher=curTeacher->next;
+                delete temp;
             }
-            curTeacher = curTeacher->next;
         }
     }
 }
@@ -565,6 +573,7 @@ void StudentRegHashTable::printStudentList() {
         Student* p = studentlist.at(i);
         while (nullptr!=p) {
             dbstudentlist<<p->name<<endl;
+            p=p->next;
         }
     } 
     dbstudentlist.close();
@@ -577,6 +586,7 @@ void StudentRegHashTable::printCourseList() {
         Course* p = courselist.at(i);
         while (nullptr!=p) {
             dbcourselist<<p->courseName<<endl;
+            p=p->next;
         }
     } 
     dbcourselist.close();
@@ -589,6 +599,7 @@ void StudentRegHashTable::printTeacherList() {
         Teacher* p = teacherlist.at(i);
         while (nullptr!=p) {
             dbteacherlist<<p->name<<endl;
+            p=p->next;
         }
     } 
     dbteacherlist.close();
@@ -709,6 +720,7 @@ void StudentRegHashTable::printAll(){
                 }
             }
             }
+        s=s->next;
         }
     }
     dball.close();
