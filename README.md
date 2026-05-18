@@ -97,10 +97,7 @@ Tests are written using Google Test and live in `entitiesTest.cc`. They cover:
 The core data structure works well enough that most individual operations pass their tests, but there are a few issues that affect the correctness and stability of the program.
 
 - Update functions don't move nodes to the correct bucket
-- Remove functions leave dangling pointers in maps
-- List file loaders silently do nothing
 - `loadCS` parser is broken
-- `loadSC` and `loadCT` have their insert calls commented out
 - No duplicate checking on add
 - Hash key collisions in junction tables
 ---
