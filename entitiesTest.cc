@@ -4,6 +4,8 @@
 
 using namespace std;
 
+//maybe add tests to check if data correctly saved and if data correctly reloaded
+
 TEST(StudentRegHashTablePub, testDefaultBuckets) {
     EXPECT_EQ(StudentRegHashTable::DefaultBuckets, 26);
 }
@@ -11,7 +13,7 @@ TEST(StudentRegHashTablePub, testDefaultBuckets) {
 TEST(addStudentPub, testAddedStudentExists) {
     StudentRegHashTable student;
     student.addStudent("Alice");
-    EXPECT_TRUE(student);
+    EXPECT_TRUE(student.student_check("Alice"));
 }
 
 TEST(addStudentPub, testMissingStudentDoesNotExist) {

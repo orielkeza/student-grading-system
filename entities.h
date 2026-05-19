@@ -28,7 +28,7 @@ class StudentRegHashTable {
         bool student_check(std::string student) const; //to make sure student and course exist
         bool teacher_check(std::string teacher) const; //to make sure student and course exist
         bool course_check(std::string course) const; //to make sure student and course exist
-        void printJunctionAll();
+        //void printJunctionAll();
         void printOne(std::string studentName);
         void updateCourse(std::string oldCourseN, std::string newCourseN);
         void updateStudent(std::string oldStudentN, std::string newStudentN);

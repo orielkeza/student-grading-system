@@ -21,7 +21,7 @@ StudentRegHashTable::StudentRegHashTable()
 
 StudentRegHashTable::~StudentRegHashTable() {
     printAll();
-    printJunctionAll();
+    //printJunctionAll();
 
     for(int i=0; i<studentlist.size(); i++) {
         Student* p = studentlist.at(i);
@@ -493,17 +493,33 @@ void StudentRegHashTable::updateMarks(string student, string course, double newM
 
 void StudentRegHashTable::removeCourse(string course){
     if(course_check(course)){
-        for(auto & [key, p] : studentCourseTable) {
+        /*for(auto & [key, p] : studentCourseTable) {
             if(p->course==course) {
                 delete p;
+                studentCourseTable.erase(key);
+            }
+        }*/
+        for(auto it = studentCourseTable.begin(); it != studentCourseTable.end();){
+            if(it->second->course == course){
+                delete it->second;
+                it = studentCourseTable.erase(it);
+            } else {
+                ++it;
             }
         }
-
-        for(auto & [key, p] : teacherCourseTable) {
+        /*for(auto & [key, p] : teacherCourseTable) {
             if(p->course==course) {
                 delete p;
             }
-        }   
+        } */
+        for(auto it = teacherCourseTable.begin(); it != teacherCourseTable.end();){
+            if(it->second->course == course){
+                delete it->second;
+                it = teacherCourseTable.erase(it);
+            } else {
+                ++it;
+            }
+        }  
 
         const int slot = hash(course);
         Course* curCourse = courselist.at(slot);
@@ -514,21 +530,38 @@ void StudentRegHashTable::removeCourse(string course){
                 delete temp;
             }
         }
-        for(auto & [key, p] : markslist) {
+        /*for(auto & [key, p] : markslist) {
             if(p->courseName==course) {
                 delete p;
             }
-        }  
+        } */
+       for(auto it = markslist.begin(); it != markslist.end();){
+            if(it->second->courseName == course){
+                delete it->second;
+                it = markslist.erase(it);
+            } else {
+                ++it;
+            }
+        } 
     }
 }
 
 void StudentRegHashTable::removeStudent(string student){
     if(student_check(student)){
-        for(auto & [key, p] : studentCourseTable) {
+        /*for(auto & [key, p] : studentCourseTable) {
             if(p->name==student) {
                 delete p;
             }
+        }*/
+       for(auto it = studentCourseTable.begin(); it != studentCourseTable.end();){
+            if(it->second->name == student){
+                delete it->second;
+                it = studentCourseTable.erase(it);
+            } else {
+                ++it;
+            }
         }
+
         const int slot = hash(student);
         Student* curStudent = studentlist.at(slot);
         while(nullptr!=curStudent) {
@@ -539,9 +572,17 @@ void StudentRegHashTable::removeStudent(string student){
             }
         }
 
-        for(auto & [key, p] : markslist) {
+        /*for(auto & [key, p] : markslist) {
             if(p->studentName==student) {
                 delete p;
+            }
+        }*/
+       for(auto it = markslist.begin(); it != markslist.end();){
+            if(it->second->studentName == student){
+                delete it->second;
+                it = markslist.erase(it);
+            } else {
+                ++it;
             }
         }  
     } 
@@ -549,11 +590,20 @@ void StudentRegHashTable::removeStudent(string student){
 
 void StudentRegHashTable::removeTeacher(string teacher){
     if(teacher_check(teacher)){    
-        for(auto & [key, p] : teacherCourseTable) {
+        /*for(auto & [key, p] : teacherCourseTable) {
             if(p->name==teacher) {
                 delete p;
             }
+        }*/
+       for(auto it = teacherCourseTable.begin(); it != teacherCourseTable.end();){
+            if(it->second->name == teacher){
+                delete it->second;
+                it = teacherCourseTable.erase(it);
+            } else {
+                ++it;
+            }
         }
+
         const int slot = hash(teacher);
         Teacher* curTeacher = teacherlist.at(slot);
         while(nullptr!=curTeacher) {
