@@ -96,8 +96,6 @@ Tests are written using Google Test and live in `entitiesTest.cc`. They cover:
 
 The core data structure works well enough that most individual operations pass their tests, but there are a few issues that affect the correctness and stability of the program.
 
-- Update functions don't move nodes to the correct bucket
-- `loadCS` parser is broken
 - No duplicate checking on add
 - Hash key collisions in junction tables
 ---
@@ -108,13 +106,12 @@ The biggest thing that took time was understanding how to model many-to-many rel
 
 I also spent too long trying to design multiple files to draw from, then one unified file format before landing on the approach of having `all.txt` as the main source to load from and generating the specialized view files on demand.
 
-I often overcomplicated things but found that often times the simpler answer was usually the best way to go about it.
+I overcomplicated things but found that often times the simpler answer was usually the best way to go about it.
 
 ---
 
 ## Planned Improvements
 
-- Fix update functions to reinsert nodes into the correct bucket
 - Add duplicate checking to all `add*` functions
 - Add ID generation so names don't need to be globally unique
 - Build the interactive terminal menu (teacher/student/course registration flows)
