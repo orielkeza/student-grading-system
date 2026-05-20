@@ -14,9 +14,11 @@
 
 using namespace std;
 
-StudentRegHashTable::StudentRegHashTable()
+const int StudentRegHashTable::DefaultBuckets;
+
+StudentRegHashTable::StudentRegHashTable(bool loadFromFile)
     : studentCourseTable{}, teacherCourseTable{}, studentlist{DefaultBuckets}, courselist{DefaultBuckets}, markslist{}, teacherlist{DefaultBuckets} {
-        loadDB();
+      if(loadFromFile) loadDB();
     }
 
 StudentRegHashTable::~StudentRegHashTable() {
@@ -300,7 +302,7 @@ void StudentRegHashTable::loadDB() {
 }
 
 void StudentRegHashTable::addStudent(string student) {
-    if(!(student_check(student))) return;
+    if((student_check(student))) return;
     const int slot = hash(student);
     Student* newStudent = new Student;
     newStudent->name = student;
@@ -309,7 +311,7 @@ void StudentRegHashTable::addStudent(string student) {
 }
 
 void StudentRegHashTable::addTeacher(string teacher) {
-    if(!(teacher_check(teacher))) return;
+    if((teacher_check(teacher))) return;
     const int slot = hash(teacher);
     Teacher* newTeacher = new Teacher;
     newTeacher->name = teacher;
@@ -318,7 +320,7 @@ void StudentRegHashTable::addTeacher(string teacher) {
 }
 
 void StudentRegHashTable::addCourse(string course) {
-    if(!(course_check(course))) return;
+    if((course_check(course))) return;
     const int slot = hashCourse(course);
     Course* newCourse = new Course;
     newCourse->courseName = course;
@@ -382,7 +384,7 @@ bool StudentRegHashTable::teacher_course_check(string teacher, string course) co
 }
 
 void StudentRegHashTable::addStudent_Course(string student, string course){
-    if(!(student_course_check(student,course))) return;
+    if((student_course_check(student,course))) return;
 
     const string scSlot = hashStudentCourse(student, course);
     SC* scNewStudent = new SC;
@@ -393,7 +395,7 @@ void StudentRegHashTable::addStudent_Course(string student, string course){
 }
 //needs to be updated for the teacher course connection
 void StudentRegHashTable::addTeacher_Course(string teacher, string course){
-    if(!(teacher_course_check(teacher,course))) return;
+    if((teacher_course_check(teacher,course))) return;
 
     const string tcSlot = hashTC(teacher, course);
     TC* tcNewTeacher = new TC;
@@ -544,12 +546,21 @@ void StudentRegHashTable::removeCourse(string course){
 
         const int slot = hash(course);
         Course* curCourse = courselist.at(slot);
+        Course* prev = nullptr;
         while(nullptr!=curCourse) {
             if(curCourse->courseName == course) {
+                if(prev){
+                    prev->next == curCourse->next;
+                } else {
+                    courselist.at(slot) = curCourse->next;
+                }
                 Course* temp = curCourse;
                 curCourse=curCourse->next;
                 delete temp;
+                break;
             }
+            prev = curCourse;
+            curCourse = curCourse->next;
         }
         /*for(auto & [key, p] : markslist) {
             if(p->courseName==course) {
@@ -585,12 +596,21 @@ void StudentRegHashTable::removeStudent(string student){
 
         const int slot = hash(student);
         Student* curStudent = studentlist.at(slot);
+        Student* prev = nullptr;
         while(nullptr!=curStudent) {
             if(curStudent->name == student) {
+                if(prev){
+                    prev->next == curStudent->next;
+                } else {
+                    studentlist.at(slot) = curStudent->next;
+                }
                 Student* temp = curStudent;
                 curStudent = curStudent->next;
                 delete temp;
+                break;
             }
+            prev = curStudent;
+            curStudent = curStudent->next;
         }
 
         /*for(auto & [key, p] : markslist) {
@@ -627,12 +647,21 @@ void StudentRegHashTable::removeTeacher(string teacher){
 
         const int slot = hash(teacher);
         Teacher* curTeacher = teacherlist.at(slot);
+        Teacher* prev = nullptr;
         while(nullptr!=curTeacher) {
             if(curTeacher->name == teacher) {
+                if(prev){
+                    prev->next == curTeacher->next;
+                } else {
+                    teacherlist.at(slot) = curTeacher->next;
+                }
                 Teacher* temp = curTeacher;
                 curTeacher=curTeacher->next;
                 delete temp;
+                break;
             }
+            prev = curTeacher;
+            curTeacher = curTeacher->next;
         }
     }
 }

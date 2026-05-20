@@ -1,7 +1,3 @@
 List of all the teachers:
 
-Arnold
-Ben
-Darry
-Zed
-David
+Charles
