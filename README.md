@@ -70,11 +70,15 @@ g++ -std=c++17 terminalMenu.cc -o studentreg
 ```
 The application runs as a USSD-style interactive terminal menu. Use A/B/C to navigate between Student, Teacher, and Course sections, and 0 to go back or exit.
 
+<img width="311" height="220" alt="image" src="https://github.com/user-attachments/assets/6339e807-ebfe-4899-99c5-06e21de73249" />
+
 ### Running the tests
 ```bash
 g++ -std=c++17 entitiesTest.cc entities.cc entities.h -lgtest -lgtest_main -pthread -o run_tests
 ./run_tests
 ```
+
+<img width="573" height="74" alt="image" src="https://github.com/user-attachments/assets/d6efc36b-138a-4ef3-bc0d-5cb167c9fe47" />
 
 ---
 
