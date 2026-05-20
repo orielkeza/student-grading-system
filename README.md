@@ -92,14 +92,6 @@ Tests are written using Google Test and live in `entitiesTest.cc`. They cover:
 
 ---
 
-## Known Bugs and Incomplete Functionality
-
-The core data structure works well enough that most individual operations pass their tests, but there are a few issues that affect the correctness and stability of the program.
-
-- No duplicate checking on add
-- Hash key collisions in junction tables
----
-
 ## What I Learned / What I'd Do Differently
 
 The biggest thing that took time was understanding how to model many-to-many relationships without a real database, and that keeping the junction data consistent when you update or delete from the primary tables requires explicit cascade logic. SQL handles that for you; in C++ you have to think through it yourself.
@@ -112,7 +104,6 @@ I overcomplicated things but found that often times the simpler answer was usual
 
 ## Planned Improvements
 
-- Add duplicate checking to all `add*` functions
 - Add ID generation so names don't need to be globally unique
 - Build the interactive terminal menu (teacher/student/course registration flows)
 - Separate `entities.cc` into more focused files as the codebase grows
