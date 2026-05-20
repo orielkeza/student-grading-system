@@ -7,7 +7,7 @@
  
 class StudentRegHashTable {
     public:
-        StudentRegHashTable();
+        StudentRegHashTable(bool loadFromFile = true);
         virtual ~StudentRegHashTable();
         void addStudent(std::string student);
         void addTeacher(std::string teacher);

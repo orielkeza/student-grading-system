@@ -11,134 +11,134 @@ TEST(StudentRegHashTablePub, testDefaultBuckets) {
 }
 
 TEST(addStudentPub, testAddedStudentExists) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     EXPECT_TRUE(student.student_check("Alice"));
 }
 
 TEST(addStudentPub, testMissingStudentDoesNotExist) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     EXPECT_FALSE(student.student_check("Bob"));
 }
 
 TEST(addTeacherPub, testAddedTeacherExists) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     EXPECT_TRUE(teacher.teacher_check("Charles"));
 }
 
 TEST(addTeacherPub, testMissingTeacherDoesNotExist) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     EXPECT_FALSE(teacher.teacher_check("Charles"));
 }
 
 TEST(addCoursePub, testAddedCourseExists) {
-    StudentRegHashTable course;
+    StudentRegHashTable course (false);
     course.addCourse("Math");
     EXPECT_TRUE(course.course_check("Math"));
 }
 
 TEST(addCoursePub, testMissingCourseDoesNotExist) {
-    StudentRegHashTable course;
+    StudentRegHashTable course (false);
     EXPECT_FALSE(course.course_check("Math"));
 }
 
 TEST(studentCourseCheckPub, testBothExist) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addCourse("Math");
     EXPECT_TRUE(student.student_course_check("Alice", "Math"));
 }
 
 TEST(studentCourseCheckPub, testStudentMissing) {
-    StudentRegHashTable course;
+    StudentRegHashTable course (false);
     course.addCourse("Math");
     EXPECT_FALSE(course.student_course_check("Alice", "Math"));
 }
 
 TEST(studentCourseCheckPub, testCourseMissing) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     EXPECT_FALSE(student.student_course_check("Alice", "Math"));
 }
 
 TEST(teacherCourseCheckPub, testBothExist) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.addCourse("Math");
     EXPECT_TRUE(teacher.teacher_course_check("Charles", "Math"));
 }
 
 TEST(teacherCourseCheckPub, testTeacherMissing) {
-    StudentRegHashTable course;
+    StudentRegHashTable course (false);
     course.addCourse("Math");
     EXPECT_FALSE(course.teacher_course_check("Charles", "Math"));
 }
 
 TEST(addStudentCoursePub, testAddStudentCourseRequiresBoth) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addStudent_Course("Alice", "Math"); // Math not added, should do nothing
     EXPECT_FALSE(student.student_course_check("Alice", "Math"));
 }
 
 TEST(updateStudentPub, testUpdateStudentName) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.updateStudent("Alice", "Bob");
     EXPECT_TRUE(student.student_check("Bob"));
 }
 
 TEST(updateStudentPub, testUpdateNonExistentStudentDoesNothing) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.updateStudent("Ghost", "NewGhost");
     EXPECT_FALSE(student.student_check("NewGhost"));
 }
 
 TEST(updateTeacherPub, testUpdateTeacherName) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.updateTeacher("Charles", "Don");
     EXPECT_TRUE(teacher.teacher_check("Don"));
 }
 
 TEST(updateCoursePub, testUpdateCourseName) {
-    StudentRegHashTable course;
+    StudentRegHashTable course (false);
     course.addCourse("Math");
     course.updateCourse("Math", "Science");
     EXPECT_TRUE(course.course_check("Science"));
 }
 
 TEST(removeStudentPub, testRemovedStudentNoLongerExists) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.removeStudent("Alice");
     EXPECT_FALSE(student.student_check("Alice"));
 }
 
 TEST(removeStudentPub, testRemoveNonExistentStudentDoesNothing) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.removeStudent("Bob");
     EXPECT_TRUE(student.student_check("Alice"));
 }
 
 TEST(removeTeacherPub, testRemovedTeacherNoLongerExists) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.removeTeacher("Charles");
     EXPECT_FALSE(teacher.teacher_check("Charles"));
 }
 
 TEST(removeCoursePub, testRemovedCourseNoLongerExists) {
-    StudentRegHashTable course;
+    StudentRegHashTable course (false);
     course.addCourse("Math");
     course.removeCourse("Math");
     EXPECT_FALSE(course.course_check("Math"));
 }
 
 TEST(removeCoursePub, testRemoveNonExistentCourseDoesNothing) {
-    StudentRegHashTable course;
+    StudentRegHashTable course (false);
     course.addCourse("Math");
     course.removeCourse("Science");
     EXPECT_TRUE(course.course_check("Math"));
@@ -153,7 +153,7 @@ TEST(heapPub, testHeapAllocatedTableDeletesCleanly) {
 }
 
 TEST(studentCheckPub, multipleStudentsDifferentBuckets) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addStudent("Bob");
     EXPECT_TRUE(student.student_check("Alice"));
@@ -161,7 +161,7 @@ TEST(studentCheckPub, multipleStudentsDifferentBuckets) {
 }
 
 TEST(studentCheckPub, multipleStudentsSameBucket) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addStudent("Alex");
     EXPECT_TRUE(student.student_check("Alice"));
@@ -169,7 +169,7 @@ TEST(studentCheckPub, multipleStudentsSameBucket) {
 }
 
 TEST(teacherCheckPub, multipleTeachersSameBucket) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.addTeacher("Claude");
     EXPECT_TRUE(teacher.teacher_check("Charles"));
@@ -177,7 +177,7 @@ TEST(teacherCheckPub, multipleTeachersSameBucket) {
 }
 
 TEST(courseCheckPub, multipleCoursesSameBucket) {
-    StudentRegHashTable course;
+    StudentRegHashTable course (false);
     course.addCourse("Math");
     course.addCourse("Music");
     EXPECT_TRUE(course.course_check("Math"));
@@ -185,23 +185,23 @@ TEST(courseCheckPub, multipleCoursesSameBucket) {
 }
 
 TEST(studentCourseCheckPub, bothMissing) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     EXPECT_FALSE(student.student_course_check("Alice", "Math"));
 }
 
 TEST(teacherCourseCheckPub, courseMissing) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     EXPECT_FALSE(teacher.teacher_course_check("Charles", "Math"));
 }
 
 TEST(teacherCourseCheckPub, bothMissing) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     EXPECT_FALSE(teacher.teacher_course_check("Charles", "Math"));
 }
 
 TEST(addStudentCoursePub, succeedsWhenBothExist) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addCourse("Math");
     student.addStudent_Course("Alice", "Math");
@@ -209,21 +209,21 @@ TEST(addStudentCoursePub, succeedsWhenBothExist) {
 }
 
 TEST(addTeacherCoursePub, requiresBothToExist) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.addTeacher_Course("Charles", "Math");
     EXPECT_FALSE(teacher.teacher_course_check("Charles", "Math"));
 }
 
 TEST(addTeacherCoursePub, doesNothingIfTeacherMissing) {
-    StudentRegHashTable course;
+    StudentRegHashTable course (false);
     course.addCourse("Math");
     course.addTeacher_Course("Charles", "Math");
     EXPECT_FALSE(course.teacher_course_check("Charles", "Math"));
 }
 
 TEST(addTeacherCoursePub, succeedsWhenBothExist) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.addCourse("Math");
     teacher.addTeacher_Course("Charles", "Math");
@@ -232,7 +232,7 @@ TEST(addTeacherCoursePub, succeedsWhenBothExist) {
 
 
 TEST(addMarksPub, succeedsWhenBothExist) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addCourse("Math");
     student.addStudent_Course("Alice", "Math");
@@ -241,7 +241,7 @@ TEST(addMarksPub, succeedsWhenBothExist) {
 }
 
 TEST(updateStudentPub, updatesNameInStudentCourseTable) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addCourse("Math");
     student.addStudent_Course("Alice", "Math");
@@ -250,7 +250,7 @@ TEST(updateStudentPub, updatesNameInStudentCourseTable) {
 }
 
 TEST(updateTeacherPub, updatesNameInTeacherCourseTable) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.addCourse("Math");
     teacher.addTeacher_Course("Charles", "Math");
@@ -259,7 +259,7 @@ TEST(updateTeacherPub, updatesNameInTeacherCourseTable) {
 }
 
 TEST(updateCoursePub, updatesNameInStudentCourseTable) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addCourse("Math");
     student.addStudent_Course("Alice", "Math");
@@ -268,7 +268,7 @@ TEST(updateCoursePub, updatesNameInStudentCourseTable) {
 }
 
 TEST(updateMarksPub, updatesMarksWhenEntryExists) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addCourse("Math");
     student.addStudent_Course("Alice", "Math");
@@ -278,13 +278,13 @@ TEST(updateMarksPub, updatesMarksWhenEntryExists) {
 }
 
 TEST(updateMarksPub, doesNothingWhenStudentOrCourseMissing) {
-    StudentRegHashTable marks;
+    StudentRegHashTable marks (false);
     marks.updateMarks("Alice", "Math", 90.0);
     EXPECT_FALSE(marks.student_course_check("Alice", "Math"));
 }
 
 TEST(removeStudentPub, removingStudentAlsoRemovesFromStudentCourseTable) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addCourse("Math");
     student.addStudent_Course("Alice", "Math");
@@ -293,14 +293,14 @@ TEST(removeStudentPub, removingStudentAlsoRemovesFromStudentCourseTable) {
 }
 
 TEST(removeTeacherPub, removeNonExistentTeacherDoesNothing) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.removeTeacher("Ghost");
     EXPECT_TRUE(teacher.teacher_check("Charles"));
 }
 
 TEST(removeTeacherPub, removingTeacherAlsoRemovesFromTeacherCourseTable) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.addCourse("Math");
     teacher.addTeacher_Course("Charles", "Math");
@@ -309,7 +309,7 @@ TEST(removeTeacherPub, removingTeacherAlsoRemovesFromTeacherCourseTable) {
 }
 
 TEST(removeCoursePub, removingCourseAlsoRemovesFromJunctionTables) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addTeacher("Charles");
     student.addCourse("Math");
@@ -320,27 +320,27 @@ TEST(removeCoursePub, removingCourseAlsoRemovesFromJunctionTables) {
 }
 
 TEST(printStudentListPub, doesNotCrash) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addStudent("Bob");
     student.printStudentList();
 }
 
 TEST(printCourseListPub, doesNotCrash) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addCourse("Math");
     teacher.addCourse("Science");
     teacher.printCourseList();
 }
 
 TEST(printTeacherListPub, doesNotCrash) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.printTeacherList();
 }
 
 TEST(printAllPub, doesNotCrash) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addTeacher("Charles");
     student.addCourse("Math");
@@ -351,7 +351,7 @@ TEST(printAllPub, doesNotCrash) {
 }
 
 TEST(studentCoursesPub, doesNotCrash) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addCourse("Math");
     student.addStudent_Course("Alice", "Math");
@@ -359,7 +359,7 @@ TEST(studentCoursesPub, doesNotCrash) {
 }
 
 TEST(courseStudentsPub, doesNotCrash) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addCourse("Math");
     student.addStudent_Course("Alice", "Math");
@@ -367,7 +367,7 @@ TEST(courseStudentsPub, doesNotCrash) {
 }
 
 TEST(teacherCoursesPub, doesNotCrash) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.addCourse("Math");
     teacher.addTeacher_Course("Charles", "Math");
@@ -375,7 +375,7 @@ TEST(teacherCoursesPub, doesNotCrash) {
 }
 
 TEST(courseTeachersPub, doesNotCrash) {
-    StudentRegHashTable teacher;
+    StudentRegHashTable teacher (false);
     teacher.addTeacher("Charles");
     teacher.addCourse("Math");
     teacher.addTeacher_Course("Charles", "Math");
@@ -383,7 +383,7 @@ TEST(courseTeachersPub, doesNotCrash) {
 }
 
 TEST(studentRCPub, doesNotCrash) {
-    StudentRegHashTable student;
+    StudentRegHashTable student (false);
     student.addStudent("Alice");
     student.addTeacher("Charles");
     student.addCourse("Math");
