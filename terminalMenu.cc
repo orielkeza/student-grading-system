@@ -9,34 +9,6 @@ void resetScreen() {
     system("cls");
 }
 
-int main() {
-    StudentRegHashTable s;
-    while (true){
-        title("Student Registration System");
-        cout<<"A: Student\n";
-        cout<<"B:Teacher\n";
-        cout<<"C: Course\n";
-        cout<<"0: Exit\n";
-        string pick;
-        getline(cin, pick);
-        if(pick=="A" || pick=="a"){
-            studentMenu(s);
-        } else if(pick=="B" || pick=="b"){
-            teacherMenu(s);
-        } else if(pick=="C" || pick=="c"){
-            courseMenu(s);
-        } else if(pick=="0"){
-            cout<<"exiting...\n";
-            return 0;
-        } else {
-            cout<<"Invalid option, try again \n";
-            pressEnter();
-        }
-    }
-    
-    return 0;
-}
-
 //formatting
 
 void pressEnter(){
@@ -279,7 +251,7 @@ void removeTeacherMenu(StudentRegHashTable& s) {
         return;
     }else {
         s.removeTeacher(name);
-        cout<<"\Teacher "<<name<<" removed\n";
+        cout<<"\nTeacher "<<name<<" removed\n";
     }
     pressEnter();
     return;
@@ -541,4 +513,32 @@ void viewCourseTeachersMenu(StudentRegHashTable& s) {
     s.courseTeachers(name);
     pressEnter();
     return;
+}
+
+int main() {
+    StudentRegHashTable s;
+    while (true){
+        title("Student Registration System");
+        cout<<"A: Student\n";
+        cout<<"B:Teacher\n";
+        cout<<"C: Course\n";
+        cout<<"0: Exit\n";
+        string pick;
+        getline(cin, pick);
+        if(pick=="A" || pick=="a"){
+            studentMenu(s);
+        } else if(pick=="B" || pick=="b"){
+            teacherMenu(s);
+        } else if(pick=="C" || pick=="c"){
+            courseMenu(s);
+        } else if(pick=="0"){
+            cout<<"exiting...\n";
+            return 0;
+        } else {
+            cout<<"Invalid option, try again \n";
+            pressEnter();
+        }
+    }
+    
+    return 0;
 }
