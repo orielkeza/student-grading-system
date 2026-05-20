@@ -24,42 +24,6 @@ void title(string title){
 
 //student
 
-void studentMenu(StudentRegHashTable& s){
-    while(true){
-        title("Student Menu");
-        cout<<"\n0. Go Back\n";
-        cout<<"1. Add student\n";
-        cout<<"2. Remove student\n";
-        cout<<"3. Update student name\n";
-        cout<<"4. Enroll student in course\n";
-        cout<<"5. View student courses\n";
-        cout<<"6. View student report card\n";
-        string pick;
-        getline(cin, pick);
-        if(pick=="0"){
-            return;
-        } else if(pick=="1") {
-            addStudentMenu(s);
-        } else if(pick=="2"){
-            removeStudentMenu(s);
-        } else if(pick=="3"){
-            updateStudentMenu(s);
-        } else if(pick=="4"){
-            enrollStudentMenu(s);
-        } else if(pick=="5"){
-            viewStudentCoursesMenu(s);
-        } else if(pick=="6"){
-            studentRCMenu(s);
-        } else if(pick=="7") {
-            s.printStudentList();
-        } else {
-            cout<<"\nInvalid option, try again\n";
-            pressEnter();
-        }
-    }
-    return;
-}
-
 void addStudentMenu(StudentRegHashTable& s) {
     title("Add Student");
     s.printStudentList();
@@ -177,43 +141,34 @@ void studentRCMenu(StudentRegHashTable& s) {
     return;
 }
 
-//teachers
-
-void teacherMenu(StudentRegHashTable& s){
+void studentMenu(StudentRegHashTable& s){
     while(true){
-        title("Teacher Menu");
+        title("Student Menu");
         cout<<"\n0. Go Back\n";
-        cout<<"1. Add teacher\n";
-        cout<<"2. Remove teacher\n";
-        cout<<"3. Update teacher name\n";
-        cout<<"4. Add teacher to course\n";
-        cout<<"5. View teacher courses\n";
+        cout<<"1. Add student\n";
+        cout<<"2. Remove student\n";
+        cout<<"3. Update student name\n";
+        cout<<"4. Enroll student in course\n";
+        cout<<"5. View student courses\n";
         cout<<"6. View student report card\n";
-        cout<<"7. Assign marks\n";
-        cout<<"8. Change Marks\n";
-        cout<<"9. View all teachers\n";
         string pick;
         getline(cin, pick);
         if(pick=="0"){
             return;
         } else if(pick=="1") {
-            addTeacherMenu(s);
+            addStudentMenu(s);
         } else if(pick=="2"){
-            removeTeacherMenu(s);
+            removeStudentMenu(s);
         } else if(pick=="3"){
-            updateTeacherMenu(s);
+            updateStudentMenu(s);
         } else if(pick=="4"){
-            enrollTeacherMenu(s);
+            enrollStudentMenu(s);
         } else if(pick=="5"){
-            viewTeacherCoursesMenu(s);
+            viewStudentCoursesMenu(s);
         } else if(pick=="6"){
             studentRCMenu(s);
-        } else if(pick=="7"){
-            assignMarksMenu(s);
-        } else if(pick=="8"){
-            changeMarksMenu(s);
-        } else if(pick=="9"){
-            s.printTeacherList();
+        } else if(pick=="7") {
+            s.printStudentList();
         } else {
             cout<<"\nInvalid option, try again\n";
             pressEnter();
@@ -221,6 +176,8 @@ void teacherMenu(StudentRegHashTable& s){
     }
     return;
 }
+
+//teachers
 
 void addTeacherMenu(StudentRegHashTable& s) {
     title("Add Teacher");
@@ -391,34 +348,41 @@ void changeMarksMenu(StudentRegHashTable& s) {
     return;
 }
 
-//course
-
-void courseMenu(StudentRegHashTable& s){
+void teacherMenu(StudentRegHashTable& s){
     while(true){
-        title("Course Menu");
+        title("Teacher Menu");
         cout<<"\n0. Go Back\n";
-        cout<<"1. Add course\n";
-        cout<<"2. Remove course\n";
-        cout<<"3. Update course name\n";
-        cout<<"4. View teachers for course\n";
-        cout<<"5. View students in course\n";
-        cout<<"6. View all courses \n";
+        cout<<"1. Add teacher\n";
+        cout<<"2. Remove teacher\n";
+        cout<<"3. Update teacher name\n";
+        cout<<"4. Add teacher to course\n";
+        cout<<"5. View teacher courses\n";
+        cout<<"6. View student report card\n";
+        cout<<"7. Assign marks\n";
+        cout<<"8. Change Marks\n";
+        cout<<"9. View all teachers\n";
         string pick;
         getline(cin, pick);
         if(pick=="0"){
             return;
         } else if(pick=="1") {
-            addCourseMenu(s);
+            addTeacherMenu(s);
         } else if(pick=="2"){
-            removeCourseMenu(s);
+            removeTeacherMenu(s);
         } else if(pick=="3"){
-            updateCourseMenu(s);
+            updateTeacherMenu(s);
         } else if(pick=="4"){
-            viewCourseTeachersMenu(s);
+            enrollTeacherMenu(s);
         } else if(pick=="5"){
-            viewCourseStudentsMenu(s);
+            viewTeacherCoursesMenu(s);
         } else if(pick=="6"){
-            s.printCourseList();
+            studentRCMenu(s);
+        } else if(pick=="7"){
+            assignMarksMenu(s);
+        } else if(pick=="8"){
+            changeMarksMenu(s);
+        } else if(pick=="9"){
+            s.printTeacherList();
         } else {
             cout<<"\nInvalid option, try again\n";
             pressEnter();
@@ -426,6 +390,8 @@ void courseMenu(StudentRegHashTable& s){
     }
     return;
 }
+
+//course
 
 void addCourseMenu(StudentRegHashTable& s) {
     title("Add Course");
@@ -512,6 +478,40 @@ void viewCourseTeachersMenu(StudentRegHashTable& s) {
     }
     s.courseTeachers(name);
     pressEnter();
+    return;
+}
+
+void courseMenu(StudentRegHashTable& s){
+    while(true){
+        title("Course Menu");
+        cout<<"\n0. Go Back\n";
+        cout<<"1. Add course\n";
+        cout<<"2. Remove course\n";
+        cout<<"3. Update course name\n";
+        cout<<"4. View teachers for course\n";
+        cout<<"5. View students in course\n";
+        cout<<"6. View all courses \n";
+        string pick;
+        getline(cin, pick);
+        if(pick=="0"){
+            return;
+        } else if(pick=="1") {
+            addCourseMenu(s);
+        } else if(pick=="2"){
+            removeCourseMenu(s);
+        } else if(pick=="3"){
+            updateCourseMenu(s);
+        } else if(pick=="4"){
+            viewCourseTeachersMenu(s);
+        } else if(pick=="5"){
+            viewCourseStudentsMenu(s);
+        } else if(pick=="6"){
+            s.printCourseList();
+        } else {
+            cout<<"\nInvalid option, try again\n";
+            pressEnter();
+        }
+    }
     return;
 }
 
