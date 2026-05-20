@@ -300,6 +300,7 @@ void StudentRegHashTable::loadDB() {
 }
 
 void StudentRegHashTable::addStudent(string student) {
+    if(!(student_check(student))) return;
     const int slot = hash(student);
     Student* newStudent = new Student;
     newStudent->name = student;
@@ -308,6 +309,7 @@ void StudentRegHashTable::addStudent(string student) {
 }
 
 void StudentRegHashTable::addTeacher(string teacher) {
+    if(!(teacher_check(teacher))) return;
     const int slot = hash(teacher);
     Teacher* newTeacher = new Teacher;
     newTeacher->name = teacher;
@@ -316,6 +318,7 @@ void StudentRegHashTable::addTeacher(string teacher) {
 }
 
 void StudentRegHashTable::addCourse(string course) {
+    if(!(course_check(course))) return;
     const int slot = hashCourse(course);
     Course* newCourse = new Course;
     newCourse->courseName = course;
