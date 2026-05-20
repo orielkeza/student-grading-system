@@ -59,24 +59,22 @@ There are also separate files for each view: `studentlist.txt`, `courselist.txt`
 ## Setup and Usage
 
 ### Requirements
-
 - A C++17-compatible compiler (tested with `g++`)
 - Google Test installed
-- Powershell terminal
+- PowerShell terminal
 
-### Compiling the tests
-
+### Running the app
 ```bash
 g++ -std=c++17 terminalMenu.cc -o studentreg
-```
-
-### Running the tests
-
-```bash
 ./studentreg
 ```
+The application runs as a USSD-style interactive terminal menu. Use A/B/C to navigate between Student, Teacher, and Course sections, and 0 to go back or exit.
 
-Application excercised through a USSD-style interactive terminal menu (options A/B/C for teacher, student, and course registration).
+### Running the tests
+```bash
+g++ -std=c++17 entitiesTest.cc entities.cc entities.h -lgtest -lgtest_main -pthread -o run_tests
+./run_tests
+```
 
 ---
 
