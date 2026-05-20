@@ -20,6 +20,8 @@ This project started as a way to ease the transition from C++ to Java and get mo
 - Query views: a student's courses, a course's students, a teacher's courses, a course's teachers
 - Generate a student report card showing course, marks, and teacher
 - Load data from flat files on startup, save back on shutdown — so state carries over between sessions
+- Interactive terminal menu with A/B/C navigation for Student, Teacher, and Course
+- Duplicate name prevention at the menu level for students, teachers, and courses
 
 ---
 
@@ -60,20 +62,21 @@ There are also separate files for each view: `studentlist.txt`, `courselist.txt`
 
 - A C++17-compatible compiler (tested with `g++`)
 - Google Test installed
+- Powershell terminal
 
 ### Compiling the tests
 
 ```bash
-g++ -std=c++17 entitiesTest.cc entities.cc entities.h -lgtest -lgtest_main -pthread -o run_tests
+g++ -std=c++17 terminalMenu.cc -o studentreg
 ```
 
 ### Running the tests
 
 ```bash
-./run_tests
+./studentreg
 ```
 
-There is no standalone `main.cc` or interactive menu in the current codebase — the application logic is exercised entirely through the test suite for now. The original plan included a USSD-style terminal menu (options A/B/C for teacher, student, and course registration), but that hasn't been implemented yet.
+Application excercised through a USSD-style interactive terminal menu (options A/B/C for teacher, student, and course registration).
 
 ---
 
@@ -105,5 +108,4 @@ I overcomplicated things but found that often times the simpler answer was usual
 ## Planned Improvements
 
 - Add ID generation so names don't need to be globally unique
-- Build the interactive terminal menu (teacher/student/course registration flows)
 - Separate `entities.cc` into more focused files as the codebase grows
